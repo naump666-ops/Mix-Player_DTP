@@ -3166,11 +3166,9 @@ setInterval(()=>{
 updateNowPlayingDisplay();
 updateTransportInfo();
 updatePlaylistProgress();
-checkRoomSleepTimers();
 renderSlots();
 if($('#modal-playlists').classList.contains('open'))renderPlaylistLibrary();
 if($('#modal-mixer').classList.contains('open'))renderMixer();
-updateRemoteUI();
 },1000);
 /* === МОБИЛЬНАЯ ЛЕНТА: подсветка активной страницы + пульт === */
 (function(){
