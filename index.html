@@ -1,0 +1,3890 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b3ea8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MixPlayer">
+<title>Mix Player v.1 — Multi-Room</title>
+<style>
+:root{
+--silver-hi:#fdfdfd;--silver:#d8d8d8;--silver-md:#bdbdbd;--silver-lo:#9e9e9e;--silver-dk:#6f6f6f;
+--navy:#122a66;--navy-dk:#081238;--lcd-bg1:#0a102a;--lcd-bg2:#122050;
+--lcd-blue:#6fb0ff;--lcd-blue-dk:#3b6fd4;--sel1:#3a74d8;--sel2:#1c4fb4;
+--txt-dark:#1a2a5a;--txt-list:#c8dcff;
+--accent:#0b3ea8;
+}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;}
+body{font-family:Tahoma,Verdana,"MS Sans Serif",Arial,sans-serif;background:linear-gradient(#c8ccd4,#a8acb4 60%,#8f939b);color:var(--txt-dark);height:100vh;display:flex;flex-direction:column;overflow:hidden;padding:10px;gap:8px;}
+.wa-window{flex:1;display:flex;flex-direction:column;min-height:0;background:linear-gradient(#e9e9e9,#cfcfcf 30%,#c2c2c2 70%,#adadad);border:1px solid #4a4a4a;border-radius:6px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #8a8a8a,0 6px 24px rgba(0,0,0,.5);overflow:hidden;}
+.wa-titlebar{display:flex;align-items:center;gap:8px;padding:4px 8px;background:linear-gradient(#f4f4f4,#d2d2d2 45%,#bcbcbc 55%,#a6a6a6);border-bottom:1px solid #777;}
+.wa-grip{color:#5a5a5a;font-size:11px;letter-spacing:1px;}
+.wa-titletext{flex:1;text-align:center;font-weight:700;font-size:12px;color:var(--txt-dark);letter-spacing:2px;text-transform:uppercase;text-shadow:0 1px 0 #fff;}
+.wa-winbtns{display:flex;gap:3px;}
+.wa-winbtns i{font-style:normal;width:16px;height:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#fefefe,#c8c8c8 50%,#a8a8a8);border:1px solid #5f5f5f;border-radius:3px;font-size:9px;color:#222;box-shadow:inset 1px 1px 0 #fff;}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 8px;background:linear-gradient(#e2e2e2,#c9c9c9);border-bottom:1px solid #8a8a8a;box-shadow:inset 0 1px 0 #fff;}
+.logo{display:none;}
+.tools-group{display:flex;gap:2px;flex-wrap:wrap;}
+button{background:linear-gradient(var(--silver-hi),var(--silver) 45%,var(--silver-md) 50%,var(--silver-lo));border:1px solid #5f5f5f;border-radius:4px;color:var(--txt-dark);padding:5px 10px;cursor:pointer;font-size:11px;font-family:inherit;display:inline-flex;align-items:center;gap:4px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #909090,0 1px 2px rgba(0,0,0,.3);text-shadow:0 1px 0 rgba(255,255,255,.6);}
+button:hover{background:linear-gradient(#ffffff,#e4e4e4 45%,#cfcfcf 50%,#b8b8b8);color:var(--accent);}
+button:active{background:linear-gradient(#a8a8a8,#c4c4c4);box-shadow:inset 1px 1px 3px rgba(0,0,0,.4);}
+button.active{background:linear-gradient(#9db6e8,#7d9cd0 50%,#6889c4);color:#fff;box-shadow:inset 1px 1px 3px rgba(0,0,20,.45);text-shadow:0 1px 1px rgba(0,0,40,.5);}
+button.danger:hover{background:linear-gradient(#f4c8c8,#d89898);color:#8a1010;}
+.tools-group button{border-radius:3px;}
+.track-info{flex:1;min-width:120px;text-align:center;font-size:11px;font-family:"Lucida Console",Monaco,monospace;color:var(--lcd-blue);background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border:1px solid;border-color:#3a4a7a #05070f #05070f #3a4a7a;padding:5px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 0 6px rgba(70,140,255,.75);box-shadow:inset 0 0 10px rgba(0,30,100,.8);}
+input[type="range"]{-webkit-appearance:none;height:8px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(#8a8a8a,#b8b8b8 60%,#cfcfcf);border:1px solid #6f6f6f;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:22px;border-radius:4px;background:linear-gradient(#fefefe,#d4d4d4 45%,#b4b4b4 55%,#9a9a9a);border:1px solid #555;box-shadow:inset 0 1px 0 #fff,0 1px 2px rgba(0,0,0,.4);}
+input[type="text"],select{background:#fff;border:1px solid #7a7a7a;border-radius:3px;color:#10204a;font-family:inherit;font-size:11px;padding:5px 7px;outline:none;box-shadow:inset 1px 1px 2px rgba(0,0,0,.25);}
+select{background:linear-gradient(#f4f4f4,#d8d8d8);padding:3px 4px;}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:transparent;}
+#page-player,#page-editor{display:contents;}
+.mobile-tabs{display:none;}
+.mtab{flex:1;justify-content:center;}
+.main-viz-panel{margin:8px 8px 0 8px;border:2px solid;border-color:#4a5a8a #05070f #05070f #4a5a8a;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2) 55%,var(--lcd-bg1));border-radius:6px;display:flex;flex-direction:column;flex-shrink:0;box-shadow:inset 0 0 16px rgba(0,40,120,.85),0 1px 0 rgba(255,255,255,.5);}
+.main-viz-panel.hidden{display:none;}
+.main-viz-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px;background:linear-gradient(rgba(120,150,220,.18),rgba(20,40,90,.18));border-bottom:1px solid rgba(90,130,220,.35);}
+.main-viz-title{color:var(--lcd-blue);font-size:10px;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 6px rgba(70,140,255,.7);}
+.viz-controls{display:flex;gap:3px;}
+.viz-controls button,#btn-toggle-viz{padding:3px 8px;font-size:10px;border-radius:3px;background:linear-gradient(rgba(140,170,240,.25),rgba(30,60,140,.25));border:1px solid #3a5a9a;color:#9dc0ff;text-shadow:0 0 4px rgba(70,140,255,.6);box-shadow:inset 1px 1px 0 rgba(160,200,255,.25);}
+.viz-controls button:hover{color:#fff;border-color:#6f9adf;}
+.viz-controls button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;box-shadow:inset 1px 1px 3px rgba(0,0,40,.6);}
+.main-viz-canvas-wrap{height:clamp(90px,16vh,170px);position:relative;}
+.main-viz-canvas-wrap canvas{width:100%;height:100%;display:block;}
+.now-playing-display{margin:8px 8px 0 8px;padding:10px 14px;min-height:56px;flex-shrink:0;display:flex;align-items:center;gap:10px;border-radius:6px;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2) 60%,var(--lcd-bg1));border:2px solid;border-color:#4a5a8a #05070f #05070f #4a5a8a;box-shadow:inset 0 0 14px rgba(0,40,120,.85);}
+.np-dot{width:12px;height:12px;border-radius:50%;background:#132c66;border:1px solid #3a5a9a;flex-shrink:0;box-shadow:inset 0 0 3px #000;}
+.now-playing-display.active .np-dot{background:#39f07a;border-color:#0a8040;box-shadow:0 0 8px rgba(60,255,140,.9);animation:pulse 1s infinite;}
+.np-label{font-size:10px;color:#4d78c8;text-transform:uppercase;letter-spacing:2px;}
+.np-text{flex:1;font-family:"Lucida Console",Monaco,monospace;font-size:16px;color:var(--lcd-blue);text-shadow:0 0 8px rgba(70,140,255,.85);overflow:hidden;white-space:nowrap;}
+/* Бегущая строка: вторая копия видна ТОЛЬКО в режиме прокрутки */
+.np-text .mq-wrap,.remote-np-text .mq-wrap{display:inline-flex;white-space:nowrap;will-change:transform;}
+.np-text .mq,.remote-np-text .mq{padding-right:64px;flex:none;}
+.np-text .mq:last-child,.remote-np-text .mq:last-child{display:none;}
+.np-text.marquee .mq:last-child,.remote-np-text.marquee .mq:last-child{display:block;}
+@keyframes mqscroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (max-width:720px){
+.np-text.marquee .mq-wrap,.remote-np-text.marquee .mq-wrap{animation:mqscroll 12s linear infinite;}
+}
+.transport-bar{margin:8px 8px 0 8px;padding:7px 10px;flex-shrink:0;flex-wrap:wrap;gap:6px;display:flex;align-items:center;border-radius:6px;background:linear-gradient(#efefef,#cfcfcf 45%,#bdbdbd 55%,#a8a8a8);border:1px solid #7d7d7d;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #909090;}
+.transport-bar button{width:36px;height:36px;padding:0;border-radius:50%;justify-content:center;font-size:12px;color:#222;background:radial-gradient(circle at 35% 28%,#ffffff,#dcdcdc 40%,#aeaeae 75%,#8d8d8d);border:1px solid #555;box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 1px 1px #fff;}
+.transport-bar button:active{box-shadow:inset 1px 2px 4px rgba(0,0,0,.5);background:radial-gradient(circle at 50% 60%,#c4c4c4,#9a9a9a);}
+.transport-time{min-width:150px;text-align:center;padding:5px 8px;border-radius:4px;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border:1px solid;border-color:#3a4a7a #05070f #05070f #3a4a7a;color:var(--lcd-blue);font-family:"Lucida Console",Monaco,monospace;font-size:11px;text-shadow:0 0 6px rgba(70,140,255,.75);box-shadow:inset 0 0 8px rgba(0,30,100,.8);}
+.progress-row{margin:8px 8px 0 8px;padding:6px 10px;flex-shrink:0;display:flex;align-items:center;gap:8px;border-radius:6px;background:linear-gradient(#e6e6e6,#c6c6c6);border:1px solid #7d7d7d;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #909090;}
+.prog-label{font-size:9px;color:#556;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+.prog-time{font-family:"Lucida Console",Monaco,monospace;font-size:10px;color:var(--lcd-blue);background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border:1px solid #3a4a7a;border-radius:3px;padding:3px 6px;min-width:56px;text-align:center;text-shadow:0 0 5px rgba(70,140,255,.7);box-shadow:inset 0 0 6px rgba(0,30,100,.8);white-space:nowrap;}
+#playlist-progress{flex:1;height:12px;min-width:80px;}
+#playlist-progress:disabled{opacity:.45;cursor:default;}
+.playlist-header{margin:8px 8px 0 8px;padding:5px 10px;display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;background:linear-gradient(#f2f2f2,#d0d0d0 45%,#bababa 55%,#a4a4a4);border:1px solid #7d7d7d;border-radius:5px;box-shadow:inset 1px 1px 0 #fff;cursor:pointer;}
+.playlist-header:active{background:linear-gradient(#d8d8d8,#c0c0c0);}
+.playlist-title{font-size:11px;font-weight:700;color:var(--txt-dark);text-transform:uppercase;letter-spacing:1px;text-shadow:0 1px 0 #fff;display:flex;align-items:center;gap:6px;}
+.pl-toggle-arrow{display:inline-block;min-width:12px;color:#33509a;font-size:10px;}
+.playlist-header-controls{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.playlist-header-controls label{font-size:10px;color:#444;}
+.playlist-header-controls select{max-width:180px;}
+.content-area{flex:1;display:flex;overflow:hidden;min-height:0;margin:8px 8px 0 8px;border:1px solid #6f6f6f;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,.35);}
+.content-area.collapsed{display:none;}
+.playlist-panel{width:340px;min-width:280px;flex-shrink:0;display:flex;flex-direction:column;background:linear-gradient(#d6d6d6,#c0c0c0);border-right:2px solid #8a8a8a;}
+.playlist-panel-header{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 8px;background:linear-gradient(#e8e8e8,#c8c8c8);border-bottom:1px solid #909090;box-shadow:inset 0 1px 0 #fff;}
+.pl-panel-title{font-size:10px;font-weight:700;color:var(--txt-dark);text-transform:uppercase;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pl-header-right{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+.pl-slot-badge{font-size:9px;color:#fff;background:linear-gradient(var(--sel1),var(--sel2));border:1px solid #0b2a70;border-radius:3px;padding:2px 7px;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);}
+.mode-btn{font-size:9px;padding:3px 8px;border-radius:3px;color:#0b3ea8;font-weight:700;white-space:nowrap;}
+#playlist-status{padding:4px 8px;font-size:10px;color:var(--lcd-blue);background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border-bottom:1px solid #05070f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:"Lucida Console",Monaco,monospace;text-shadow:0 0 5px rgba(70,140,255,.7);}
+.playlist-track-list{flex:1;overflow-y:auto;padding:4px;background:linear-gradient(#0a1a52,#0d2266 40%,#0a1a52);}
+.playlist-track-item{display:flex;align-items:center;gap:4px;padding:5px 6px;margin-bottom:2px;border-radius:2px;font-size:11px;color:var(--txt-list);cursor:pointer;border:1px solid transparent;text-transform:none;}
+.playlist-track-item:hover{background:rgba(70,120,220,.28);border-color:#2a4a9a;}
+.playlist-track-item.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;border-color:#0b2a70;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);}
+.pt-num{color:#7fa4e8;font-weight:700;min-width:18px;text-align:right;}
+.playlist-track-item.active .pt-num{color:#fff;}
+.pt-icon{font-size:10px;}
+.pt-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pt-btn{background:linear-gradient(#fefefe,#d4d4d4 45%,#b8b8b8 55%,#a0a0a0);border:1px solid #5f5f5f;border-radius:3px;color:#22307a;padding:2px 5px;font-size:9px;cursor:pointer;flex-shrink:0;box-shadow:inset 1px 1px 0 #fff;}
+.pt-btn:hover{color:var(--accent);background:linear-gradient(#fff,#e2e2e2);}
+.pt-btn.pt-move{color:#0b3ea8;}
+.pt-btn.pt-del{color:#a02020;}
+.pt-btn.pt-del:hover{background:linear-gradient(#f4cccc,#d89898);color:#801010;}
+.playlist-track-item.active .pt-btn{color:#22307a;}
+.pl-empty-msg{color:#7fa4e8;padding:16px 10px;font-size:11px;text-align:center;line-height:1.7;}
+.slots-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:linear-gradient(#cfcfcf,#bcbcbc);}
+.slots-title{padding:6px 8px;font-size:10px;font-weight:700;color:var(--txt-dark);text-transform:uppercase;background:linear-gradient(#e8e8e8,#c8c8c8);border-bottom:1px solid #909090;text-shadow:0 1px 0 #fff;}
+.playlist-container{flex:1;overflow-y:auto;padding:6px;}
+.playlist-item{padding:7px 8px;margin-bottom:4px;border-radius:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:linear-gradient(#f0f0f0,#d4d4d4 50%,#c4c4c4);border:1px solid #8f8f8f;box-shadow:inset 1px 1px 0 #fff;color:var(--txt-dark);font-size:12px;text-transform:none;}
+.playlist-item:hover{background:linear-gradient(#fafafa,#e0e0e0);}
+.playlist-item.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;border-color:#0b2a70;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);}
+.playlist-item.radio-item{color:#7a4a00;}
+.playlist-item.radio-item.active{color:#fff;}
+.playlist-item.muted-slot{opacity:.5;}
+.name-wrap{flex:1;min-width:120px;display:flex;align-items:center;gap:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.status-indicator{display:inline-block;width:9px;height:9px;border-radius:50%;background:#5a1010;border:1px solid #802020;flex-shrink:0;}
+.status-indicator.playing{background:#39f07a;border-color:#0a8040;box-shadow:0 0 6px rgba(60,255,140,.9);animation:pulse 1s infinite;}
+.slot-btn{background:linear-gradient(#fefefe,#d4d4d4 45%,#b8b8b8 55%,#a0a0a0);border:1px solid #5f5f5f;border-radius:3px;color:#22307a;padding:3px 7px;font-size:9px;cursor:pointer;box-shadow:inset 1px 1px 0 #fff;}
+.slot-btn:hover{color:var(--accent);}
+.playlist-item.active .slot-btn{color:#22307a;}
+.slot-btn.stop-btn{color:#a02020;}
+.slot-btn.stop-btn:hover{background:linear-gradient(#f4cccc,#d89898);color:#801010;}
+.status-bar{padding:5px 10px;font-size:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:linear-gradient(#d8d8d8,#bdbdbd);border-top:1px solid #8a8a8a;box-shadow:inset 0 1px 0 #fff;color:#333;text-transform:none;}
+#proxy-status{color:#8a4a00;}
+#sync-status{color:#33509a;}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,14,30,.72);z-index:2000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-window{background:linear-gradient(#e6e6e6,#c9c9c9 40%,#bcbcbc);border:1px solid #4a4a4a;border-radius:6px;overflow:hidden;max-height:92vh;max-width:96vw;display:flex;flex-direction:column;box-shadow:inset 1px 1px 0 #fff,0 10px 40px rgba(0,0,0,.65);}
+.modal-window.size-large{width:92vw;height:86vh;}
+.modal-window.size-matrix{width:96vw;height:94vh;max-width:1400px;}
+.modal-window.size-app{width:min(420px,94vw);}
+.modal-header{padding:5px 8px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(#f4f4f4,#d2d2d2 45%,#bcbcbc 55%,#a6a6a6);border-bottom:1px solid #777;}
+.modal-title{font-size:11px;font-weight:700;color:var(--txt-dark);text-transform:uppercase;letter-spacing:1px;text-shadow:0 1px 0 #fff;flex:1;}
+.modal-close{width:22px;height:20px;justify-content:center;padding:0;color:#a02020;font-size:11px;border-radius:3px;}
+.modal-close:hover{background:linear-gradient(#f4cccc,#d89898);color:#801010;}
+.modal-body{flex:1;overflow:auto;padding:10px;min-height:0;background:linear-gradient(#d2d2d2,#c0c0c0);}
+.modal-back{display:none;}
+.radio-search{width:100%;padding:6px 8px;margin-bottom:8px;}
+.radio-categories{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;}
+.radio-categories button{font-size:10px;padding:4px 8px;}
+.radio-categories button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;}
+.stations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:8px;padding:2px;}
+.station-card{background:linear-gradient(#f0f0f0,#d2d2d2 50%,#c2c2c2);border:1px solid #7d7d7d;border-radius:4px;padding:8px;cursor:pointer;display:flex;flex-direction:column;gap:5px;box-shadow:inset 1px 1px 0 #fff,0 1px 2px rgba(0,0,0,.3);}
+.station-card:hover{border-color:var(--accent);box-shadow:inset 1px 1px 0 #fff,0 0 8px rgba(40,90,200,.5);}
+.station-card.playing{border-color:#0b3ea8;background:linear-gradient(#dbe6fb,#b9cdf2);}
+.station-name{font-weight:700;font-size:12px;color:var(--txt-dark);}
+.station-desc{font-size:10px;color:#556;line-height:1.35;min-height:26px;}
+.station-status{font-size:10px;color:#0b3ea8;margin-top:2px;font-weight:700;}
+.station-controls{display:flex;gap:3px;flex-wrap:wrap;}
+.station-controls button{font-size:9px;padding:3px 5px;}
+.station-controls .ch-btn{background:linear-gradient(#fefefe,#d8d8d8 50%,#b8b8b8);color:#22307a;}
+.fm-empty{padding:22px;text-align:center;color:#5568a8;font-size:11px;grid-column:1/-1;line-height:1.7;}
+.wr-search-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+.wr-search-row input{flex:1;min-width:140px;}
+/* ===== YouTube: свой транспорт и громкость ===== */
+.yt-now{padding:8px 10px;border-radius:6px;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2) 60%,var(--lcd-bg1));border:2px solid;border-color:#4a5a8a #05070f #05070f #4a5a8a;box-shadow:inset 0 0 14px rgba(0,40,120,.85);color:var(--lcd-blue);font-family:"Lucida Console",Monaco,monospace;font-size:12px;margin:8px 0;display:flex;align-items:center;gap:8px;}
+.yt-state{flex-shrink:0;font-size:10px;color:#4d78c8;text-transform:uppercase;letter-spacing:1px;}
+.yt-transport{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0;}
+.yt-transport button{width:46px;height:36px;justify-content:center;font-size:14px;}
+.yt-vol{display:flex;align-items:center;gap:6px;min-width:160px;flex:1;}
+.yt-vol input{flex:1;}
+.yt-seek-row{display:flex;gap:8px;align-items:center;margin:6px 0;}
+.yt-seek-row input[type="range"]{flex:1;}
+.yt-seek-row .prog-time{min-width:86px;}
+.yt-note{font-size:10px;color:#667;margin-top:8px;line-height:1.5;}
+.room-card{background:linear-gradient(#f0f0f0,#d2d2d2 50%,#c2c2c2);border:1px solid #7d7d7d;border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:6px;box-shadow:inset 1px 1px 0 #fff;}
+.room-head{display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.room-name{font-weight:700;font-size:12px;color:var(--txt-dark);}
+.room-actions{display:flex;gap:3px;}
+.room-outputs{display:flex;gap:3px;flex-wrap:wrap;}
+.out-chip{min-width:24px;padding:2px 4px;font-size:9px;border-radius:3px;background:linear-gradient(#fefefe,#d8d8d8 50%,#b8b8b8);border:1px solid #5f5f5f;color:#556;cursor:pointer;}
+.out-chip.on{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;border-color:#0b2a70;}
+.room-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.room-row label{font-size:9px;color:#556;min-width:52px;text-transform:uppercase;}
+.room-row select{flex:1;min-width:120px;}
+.room-row input[type="range"]{flex:1;min-width:80px;}
+.room-status{font-size:9px;color:#33509a;}
+.rm-mute.active{background:linear-gradient(#e8b0b0,#c87878);color:#701010;border-color:#802020;}
+.rooms-scenes{margin-top:10px;padding:8px;border:1px dashed #8a8a8a;border-radius:4px;background:rgba(255,255,255,.35);}
+.scene-chip{margin:2px;}
+.matrix-wrapper{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;height:100%;min-height:0;padding:4px;}
+.matrix-presets{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+.matrix-presets button{font-size:11px;padding:5px 10px;}
+.output-info{font-size:10px;color:var(--txt-dark);text-align:center;max-width:900px;line-height:1.5;}
+.output-info.warn{color:#a05000;}
+/* ===== МАТРИЦА 20×19 ===== */
+.matrix-grid{display:grid;grid-template-columns:56px repeat(19,1fr);grid-template-rows:40px repeat(20,1fr);gap:3px;width:min(1200px,95%,calc(94vh - 220px));flex-shrink:1;margin:0 auto;background:linear-gradient(#b8b8b8,#a4a4a4);padding:6px;border:1px solid #7d7d7d;border-radius:6px;box-shadow:inset 1px 1px 3px rgba(0,0,0,.35);}
+.matrix-label{display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--txt-dark);font-weight:700;}
+.matrix-cell{background:linear-gradient(#ececec,#c8c8c8 50%,#b4b4b4);cursor:pointer;border:1px solid #7d7d7d;box-shadow:inset 1px 1px 0 #fff;min-height:0;border-radius:2px;}
+.matrix-cell:hover{background:linear-gradient(#f8f8f8,#dcdcdc);}
+.matrix-cell.active{background:radial-gradient(circle at 40% 30%,#9dc0ff,var(--sel1) 55%,var(--sel2));border-color:#0b2a70;box-shadow:0 0 8px rgba(50,110,230,.9),inset 0 1px 0 rgba(255,255,255,.5);}
+/* ===== МИКСЕР: вкладки и шины ===== */
+.mix-tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;}
+.mix-tab{font-size:10px;padding:4px 10px;}
+.mix-tab.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;}
+.mix-pane{display:none;height:calc(100% - 44px);}
+.mix-pane.active{display:block;overflow:auto;}
+#mixpane-ch{overflow:hidden;}
+.mixer-channels{display:flex;gap:6px;height:100%;padding:8px;overflow-x:auto;overflow-y:hidden;justify-content:flex-start;}
+.mixer-channel{flex:0 0 auto;min-width:72px;max-width:84px;height:100%;display:flex;flex-direction:column;align-items:center;padding:8px 6px;gap:6px;background:linear-gradient(#ececec,#cccccc 50%,#b8b8b8);border:1px solid #7d7d7d;border-radius:5px;box-shadow:inset 1px 1px 0 #fff,0 1px 3px rgba(0,0,0,.35);}
+.mixer-channel:first-child{margin-left:auto;}
+.mixer-channel:last-child{margin-right:auto;}
+.mixer-channel.muted{opacity:.5;}
+.mixer-channel.no-route{border-color:#a05050;box-shadow:inset 0 0 6px rgba(160,40,40,.4);}
+.meter-bar{flex:1;width:14px;background:#101830;position:relative;overflow:hidden;border:1px solid #555;border-radius:2px;box-shadow:inset 0 0 4px #000;}
+.meter-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#20c060,#a0e040 55%,#ffe040 75%,#ff4030 92%);transition:height .05s linear;}
+.ch-label{font-size:9px;color:var(--txt-dark);font-weight:700;}
+.ch-source{font-size:8px;color:#33509a;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;min-height:16px;}
+.ch-controls{display:flex;flex-direction:column;gap:4px;width:100%;align-items:center;flex:1;}
+.ch-control-label{font-size:8px;color:#556;text-align:center;}
+/* Кастомный вертикальный фейдер (iOS + десктоп) */
+.ch-fader-vertical-wrap{position:relative;width:32px;height:120px;flex:1;min-height:90px;background:linear-gradient(#9a9a9a,#c4c4c4);border:1px solid #6f6f6f;border-radius:3px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer;}
+.ch-fader-vertical-wrap .ch-fader-thumb{position:absolute;left:2px;right:2px;height:18px;background:linear-gradient(#fefefe,#d4d4d4 45%,#b4b4b4 55%,#9a9a9a);border:1px solid #555;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:none;}
+.ch-mute-btn{width:100%;margin-top:4px;padding:4px 6px;font-size:9px;border-radius:3px;cursor:pointer;background:linear-gradient(#fefefe,#d4d4d4 45%,#b8b8b8 55%,#a0a0a0);border:1px solid #5f5f5f;color:#22307a;box-shadow:inset 1px 1px 0 #fff;}
+.ch-mute-btn:hover{color:var(--accent);}
+.ch-mute-btn.active{background:linear-gradient(#e8b0b0,#c87878);color:#701010;border-color:#802020;box-shadow:inset 1px 1px 3px rgba(90,0,0,.4);}
+.grp-row{display:flex;flex-direction:column;gap:4px;padding:6px;border:1px solid #8f8f8f;border-radius:4px;margin-bottom:6px;background:linear-gradient(#ececec,#cccccc);}
+.grp-head{display:flex;align-items:center;gap:8px;}
+.grp-chips{display:flex;gap:3px;flex-wrap:wrap;}
+.gchip{min-width:22px;padding:2px 4px;font-size:9px;border-radius:3px;background:linear-gradient(#fefefe,#d8d8d8 50%,#b8b8b8);border:1px solid #5f5f5f;color:#556;cursor:pointer;}
+.gchip.on{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;border-color:#0b2a70;}
+.aux-row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-bottom:1px solid #b8b8b8;font-size:10px;}
+.aux-row input[type=range]{flex:1;}
+.aux-row .nm{width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.out-strip{display:flex;align-items:center;gap:8px;padding:4px 6px;border-bottom:1px solid #b8b8b8;font-size:10px;}
+.out-strip input[type=range]{flex:1;}
+.out-meter{width:10px;height:26px;background:#101830;position:relative;border:1px solid #555;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.out-meter i{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#20c060,#ffe040 75%,#ff4030 92%);}
+.rec-btns{display:flex;gap:4px;}
+.pllib-card{background:linear-gradient(#f0f0f0,#d2d2d2 50%,#c2c2c2);border:1px solid #7d7d7d;border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:5px;box-shadow:inset 1px 1px 0 #fff;}
+.pllib-card.active-pl{border-color:var(--accent);background:linear-gradient(#dbe6fb,#b9cdf2);}
+.pllib-name{font-weight:700;font-size:12px;color:var(--txt-dark);}
+.pllib-info{font-size:10px;color:#556;}
+.pllib-slot-info{font-size:10px;color:#0b3ea8;font-weight:700;}
+.pllib-current{font-size:10px;color:#33509a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pllib-actions{display:flex;gap:3px;flex-wrap:wrap;}
+.pllib-btn{font-size:9px;padding:3px 6px;border-radius:3px;background:linear-gradient(#fefefe,#d8d8d8 50%,#b8b8b8);border:1px solid #5f5f5f;color:#22307a;cursor:pointer;box-shadow:inset 1px 1px 0 #fff;}
+.pllib-btn:hover{color:var(--accent);}
+.pllib-btn.pl-slot{color:#8a4a00;}
+/* ===== ПУЛЬТ: КОМПАКТНЫЙ на десктопе (не на всю страницу) ===== */
+#remote-overlay{position:fixed;right:12px;bottom:12px;width:340px;max-width:calc(100vw - 24px);z-index:1500;display:none;flex-direction:column;background:linear-gradient(#e9e9e9,#cfcfcf 30%,#c2c2c2 70%,#adadad);border:1px solid #4a4a4a;border-radius:10px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #8a8a8a,0 6px 24px rgba(0,0,0,.5);max-height:70vh;}
+#remote-overlay.active{display:flex;}
+#remote-overlay.collapsed #remote-body{display:none;}
+.remote-header{display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(#f4f4f4,#d2d2d2 45%,#bcbcbc 55%,#a6a6a6);border-bottom:1px solid #777;border-radius:10px 10px 0 0;cursor:pointer;}
+#remote-overlay.collapsed .remote-header{border-bottom:none;border-radius:10px;}
+.remote-grip{color:#5a5a5a;font-size:11px;letter-spacing:1px;}
+.remote-title{flex:1;font-weight:700;font-size:12px;color:var(--txt-dark);letter-spacing:1px;text-transform:uppercase;text-shadow:0 1px 0 #fff;}
+.remote-room-code{font-family:"Lucida Console",Monaco,monospace;font-size:11px;color:var(--lcd-blue);background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));padding:2px 8px;border-radius:3px;border:1px solid #3a4a7a;text-shadow:0 0 6px rgba(70,140,255,.75);}
+.remote-collapse{font-size:10px;color:#33509a;}
+.remote-body{padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.remote-now-playing{padding:8px 10px;border-radius:6px;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2) 60%,var(--lcd-bg1));border:2px solid;border-color:#4a5a8a #05070f #05070f #4a5a8a;box-shadow:inset 0 0 14px rgba(0,40,120,.85);}
+.remote-np-label{font-size:9px;color:#4d78c8;text-transform:uppercase;letter-spacing:2px;}
+.remote-np-text{font-family:"Lucida Console",Monaco,monospace;font-size:13px;color:var(--lcd-blue);text-shadow:0 0 8px rgba(70,140,255,.85);overflow:hidden;white-space:nowrap;}
+.remote-transport{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.remote-btn{height:40px;font-size:15px;justify-content:center;}
+.remote-volume{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:6px;background:linear-gradient(#f0f0f0,#d4d4d4 50%,#c4c4c4);border:1px solid #8f8f8f;box-shadow:inset 1px 1px 0 #fff;}
+.remote-volume-label{font-size:9px;color:#556;text-transform:uppercase;letter-spacing:2px;text-align:center;}
+.remote-volume input[type="range"]{width:100%;height:14px;}
+.remote-rooms-list{display:flex;flex-direction:column;gap:8px;}
+.remote-room{background:linear-gradient(#f0f0f0,#d4d4d4 50%,#c4c4c4);border:1px solid #8f8f8f;border-radius:3px;padding:8px;box-shadow:inset 1px 1px 0 #fff;}
+.remote-room.playing{border-color:#0b3ea8;background:linear-gradient(#dbe6fb,#b9cdf2);}
+.remote-room.muted{opacity:.6;}
+.remote-room-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+.remote-room-name{font-weight:700;font-size:12px;color:var(--txt-dark);}
+.remote-room-status{font-size:10px;color:#33509a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.remote-room-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.remote-room-btn{height:34px;font-size:13px;justify-content:center;}
+.remote-room-volume{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.remote-room-volume label{font-size:9px;color:#556;min-width:30px;}
+.remote-room-volume input{flex:1;height:12px;}
+#audio-overlay{position:fixed;inset:0;background:rgba(5,8,20,.95);display:flex;align-items:center;justify-content:center;z-index:3000;flex-direction:column;gap:14px;}
+#audio-overlay.hidden{display:none;}
+#audio-overlay h2{color:var(--lcd-blue);letter-spacing:3px;text-shadow:0 0 12px rgba(70,140,255,.9);}
+#audio-overlay p{color:#5578b8;}
+#audio-overlay button{font-size:15px;padding:10px 26px;border-width:2px;}
+body.drag-over::after{content:'Отпустите файлы';position:fixed;inset:0;background:rgba(30,70,180,.18);border:4px dashed var(--sel1);display:flex;align-items:center;justify-content:center;font-size:24px;color:#cfe0ff;z-index:2500;pointer-events:none;}
+::-webkit-scrollbar{width:14px;height:14px;}
+::-webkit-scrollbar-track{background:linear-gradient(#b8b8b8,#d0d0d0);border:1px solid #8a8a8a;}
+::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#f4f4f4,#c8c8c8 50%,#a8a8a8);border:1px solid #5f5f5f;border-radius:3px;box-shadow:inset 1px 1px 0 #fff;}
+#toast-container{position:fixed;bottom:40px;right:16px;display:flex;flex-direction:column;gap:5px;z-index:4000;}
+.toast{background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border:1px solid #3a5a9a;border-radius:4px;padding:7px 12px;font-size:11px;max-width:360px;color:var(--lcd-blue);font-family:"Lucida Console",Monaco,monospace;text-shadow:0 0 6px rgba(70,140,255,.7);box-shadow:0 3px 10px rgba(0,0,0,.5);}
+.toast.error{border-color:#a03030;color:#ff9090;text-shadow:0 0 6px rgba(255,80,80,.7);}
+button{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;}
+input[type="range"]{touch-action:manipulation;}
+@supports(padding:max(0px)){
+body{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));}
+}
+@media (max-width:720px){
+.mobile-tabs{display:flex;gap:4px;padding:6px 8px;background:linear-gradient(#e2e2e2,#c9c9c9);border-top:1px solid #8a8a8a;}
+.mtab{padding:11px 4px;font-size:12px;}
+.pl-toggle-arrow{display:none;}
+#main-viz-panel{display:none !important;}
+body.page-editor #page-player{display:none;}
+body.page-editor .slots-area{display:none;}
+body.page-slots #page-player{display:none;}
+body.page-slots .playlist-header,
+body.page-slots .playlist-panel{display:none;}
+body:not(.page-editor):not(.page-slots) #page-editor{display:none;}
+body{padding:6px;gap:4px;}
+.tools-group button{padding:9px 11px;font-size:12px;}
+.transport-bar button{width:44px;height:44px;font-size:16px;}
+.track-info{order:5;flex-basis:100%;}
+.main-viz-canvas-wrap{height:90px;}
+.content-area{flex-direction:column;overflow-y:auto;}
+.playlist-panel{width:100%;min-width:0;border-right:none;}
+.slots-area{max-height:42vh;}
+input[type="range"]{height:14px;}
+input[type="range"]::-webkit-slider-thumb{width:18px;height:28px;}
+#remote-overlay{left:8px;right:8px;width:auto;bottom:8px;}
+.remote-btn{height:44px;font-size:16px;}
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+/* =====================================================================
+МОБИЛЬНАЯ ПЕРЕРАБОТКА (≤720px): ВЕРТИКАЛЬНЫЕ СТРАНИЦЫ
+===================================================================== */
+#mobile-rail{display:none;}
+.mtabs{display:none;}
+@media (max-width:720px){
+body{flex-direction:row;padding:4px;gap:4px;
+padding-top:calc(env(safe-area-inset-top,0px) + 40px);}
+.wa-window{flex:1;min-width:0;}
+.tools-group{display:none;}
+.track-info{display:none;}
+.wa-titlebar{display:none;}
+#mobile-rail{display:flex;flex-direction:column;gap:5px;padding:5px 3px;overflow-y:auto;flex-shrink:0;
+background:linear-gradient(#e2e2e2,#c9c9c9);border:1px solid #8a8a8a;border-radius:6px;box-shadow:inset 0 1px 0 #fff;}
+#mobile-rail button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;font-size:8px;min-width:48px;border-radius:5px;line-height:1;}
+#mobile-rail button .r-ic{font-size:18px;}
+#mobile-rail button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;text-shadow:0 1px 1px rgba(0,0,40,.5);}
+#modal-radio.open .modal-window,#modal-worldradio.open .modal-window,#modal-somafm.open .modal-window,
+#modal-favorites.open .modal-window,#modal-playlists.open .modal-window,#modal-rooms.open .modal-window,
+#modal-matrix.open .modal-window,#modal-slots.open .modal-window,#modal-app.open .modal-window,
+#modal-mixer.open .modal-window,#modal-youtube.open .modal-window{
+width:100vw;height:100%;max-width:none;max-height:none;border-radius:0;}
+.modal-header{padding-top:calc(env(safe-area-inset-top, 0px) + 14px);}
+.modal-back{display:inline-flex;align-items:center;justify-content:center;width:46px;height:34px;padding:0;font-size:14px;margin-right:6px;flex-shrink:0;}
+.modal-header .modal-close{width:46px;height:34px;font-size:14px;flex-shrink:0;}
+.mtabs{display:flex;gap:4px;margin-bottom:8px;overflow-x:auto;padding-bottom:2px;}
+.mtabs button{flex:0 0 auto;font-size:11px;padding:8px 14px;}
+.mtabs button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;}
+.m-scope .mtab-page{display:none;}
+.m-scope .mtab-page.active{display:block;}
+#modal-radio .radio-search{position:sticky;top:0;z-index:6;margin-bottom:0;}
+#modal-radio .radio-categories{position:sticky;top:32px;z-index:5;flex-wrap:nowrap;overflow-x:auto;padding:6px 0;margin-bottom:8px;background:linear-gradient(#d2d2d2,#c0c0c0);}
+#modal-radio .radio-categories button{flex:0 0 auto;}
+.stations-grid{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));}
+.matrix-wrapper{justify-content:flex-start;align-items:flex-start;overflow:auto;gap:8px;}
+.matrix-grid{width:100%;gap:2px;padding:4px;
+grid-template-columns:24px repeat(19,1fr);grid-template-rows:18px repeat(20,24px);flex-shrink:0;}
+.matrix-label{font-size:8px;}
+.matrix-presets{gap:4px;}
+.matrix-presets button{font-size:10px;padding:4px 7px;}
+.output-info{max-width:none;font-size:9px;}
+.mixer-channels{gap:4px;padding:6px 4px;}
+.mixer-channel{min-width:56px;max-width:64px;padding:6px 4px;}
+.status-bar{order:5;}
+body.page-player:not(.page-editor):not(.page-slots) #page-editor{display:contents;}
+body.page-player .playlist-header{display:none;}
+body.page-player .playlist-panel{display:none;}
+body.page-player .content-area{order:6;flex:1;min-height:0;overflow:hidden;margin-bottom:8px;}
+body.page-player .slots-area{flex:1;max-height:none;min-height:0;}
+#remote-overlay{left:64px;right:4px;width:auto;bottom:60px;max-height:calc(100vh - 150px);}
+}
+</style>
+</head>
+<body>
+<div id="audio-overlay">
+<h2>🎧 MIX PLAYER v.1</h2>
+<p>Нажмите для запуска аудиодвижка</p>
+<button id="btn-start-audio">▶ Запустить плеер Mix Player v.1</button>
+</div>
+<div id="toast-container"></div>
+<nav id="mobile-rail" aria-label="Разделы">
+<button data-modal="radio"><span class="r-ic">📻</span>Радио</button>
+<button data-modal="worldradio"><span class="r-ic">🌍</span>Мир</button>
+<button data-modal="somafm"><span class="r-ic">🌌</span>SomaFM</button>
+<button data-modal="favorites"><span class="r-ic">⭐</span>Favs</button>
+<button data-modal="playlists"><span class="r-ic">🎼</span>Треки</button>
+<button data-modal="slots"><span class="r-ic">🎛</span>Слоты</button>
+<button data-modal="rooms"><span class="r-ic">🏠</span>Комнаты</button>
+<button data-modal="matrix"><span class="r-ic">🔀</span>Матрица</button>
+<button data-modal="mixer"><span class="r-ic">🎚️</span>Микшер</button>
+<button id="rail-remote"><span class="r-ic">📱</span>Пульт</button>
+<button data-modal="youtube"><span class="r-ic">▶</span>YouTube</button>
+<button data-modal="app"><span class="r-ic">⬇</span>Прилож.</button>
+</nav>
+<div class="wa-window">
+<div class="wa-titlebar">
+<span class="wa-grip">≡</span>
+<span class="wa-titletext">Mix Player v.1</span>
+<span class="wa-winbtns"><i>─</i><i>□</i><i>✕</i></span>
+</div>
+<header>
+<div class="tools-group">
+<button class="radio-btn" data-modal="radio">📻 Radio</button>
+<button class="world-btn" data-modal="worldradio">🌍 World</button>
+<button class="soma-btn" data-modal="somafm">🌌 SomaFM</button>
+<button class="fav-btn" data-modal="favorites">⭐ Favs</button>
+<button class="pl-btn" data-modal="playlists">🎼 Плейлисты</button>
+<button data-modal="rooms">🏠 Комнаты</button>
+<button data-modal="matrix">🔀 Матрица</button>
+<button data-modal="mixer">🎚️ Микшер</button>
+<button id="btn-remote">📱 Пульт</button>
+<button data-modal="youtube">▶ YouTube</button>
+<button id="btn-install" style="display:none;">⬇ Приложение</button>
+<button id="btn-fullscreen">⛶</button>
+</div>
+<button id="btn-stop">⏹ Стоп всё</button>
+<div class="track-info" id="track-info">Нет активного трека</div>
+<div style="display:flex;align-items:center;gap:6px;">
+<button id="btn-mute" style="padding:4px 8px;">🔊</button>
+<input type="range" id="master-vol" min="0" max="100" value="80" style="width:80px;">
+</div>
+</header>
+<main>
+<div id="page-player">
+<div id="main-viz-panel" class="main-viz-panel">
+<div class="main-viz-toolbar">
+<span class="main-viz-title">Визуализация</span>
+<div class="viz-controls">
+<button class="active" data-viz="bars">Бары</button>
+<button data-viz="wave">Волна</button>
+<button data-viz="spectrum">Спектр</button>
+<button id="btn-toggle-viz">Скрыть</button>
+</div>
+</div>
+<div class="main-viz-canvas-wrap"><canvas id="main-viz-canvas"></canvas></div>
+</div>
+<div id="now-playing-display" class="now-playing-display">
+<div class="np-dot"></div>
+<div class="np-label">Now Playing</div>
+<div class="np-text" id="np-text">Нет источника</div>
+</div>
+<div class="transport-bar">
+<button id="pl-prev">⏮</button>
+<button id="pl-play">▶</button>
+<button id="pl-pause">⏸</button>
+<button id="pl-stop">⏹</button>
+<button id="pl-next">⏭</button>
+<div class="transport-time" id="transport-info">Активных: 0 • Играет: 0</div>
+</div>
+<div class="progress-row">
+<span class="prog-label">⏵ Позиция</span>
+<span class="prog-time" id="pl-time-cur">00:00</span>
+<input type="range" id="playlist-progress" min="0" max="100" value="0" step="0.5" disabled title="Перемотка трека">
+<span class="prog-time" id="pl-time-total">00:00</span>
+</div>
+</div>
+<div id="page-editor">
+<div class="playlist-header" id="playlist-editor-header" title="Свернуть/развернуть редактор (на десктопе)">
+<span class="playlist-title"><span class="pl-toggle-arrow" id="pl-toggle-arrow">▼</span> 🎛 Редактор списка воспроизведения</span>
+<div class="playlist-header-controls">
+<label>Плейлист:</label>
+<select id="playlist-select"></select>
+<button id="btn-add-file" style="padding:3px 8px;font-size:10px;">+ Файл в плейлист</button>
+</div>
+</div>
+<div class="content-area" id="content-area">
+<div class="playlist-panel">
+<div class="playlist-panel-header">
+<span class="pl-panel-title" id="pl-current-name">Плейлист</span>
+<span class="pl-header-right">
+<button id="pl-mode-btn" class="mode-btn" title="Режим воспроизведения (нажмите для смены)">➔ По порядку</button>
+<span class="pl-slot-badge" id="pl-slot-badge">Слот: —</span>
+</span>
+</div>
+<div id="playlist-status">Плейлист не играет</div>
+<div class="playlist-track-list" id="playlist-track-list"></div>
+</div>
+<div class="slots-area">
+<div class="slots-title">🎛 Активные источники — слоты 1–16</div>
+<div class="playlist-container" id="playlist-list"></div>
+</div>
+</div>
+</div>
+<div class="status-bar">
+<span id="status-text">Готов</span>
+<span id="proxy-status">Прокси: проверка...</span>
+<span id="sync-status">Синхронизация: ожидание</span>
+<span id="status-audio">Аудио: ожидание</span>
+</div>
+</main>
+<nav class="mobile-tabs">
+<button class="mtab active" data-page="player">🎧 Плеер</button>
+<button class="mtab" data-page="editor">🎼 Треки</button>
+</nav>
+</div>
+<!-- МОДАЛКИ -->
+<div class="modal-overlay" id="modal-radio">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">📻 Radio Record — 100+ станций</span><button class="modal-close" data-close="radio">✕</button></div>
+<div class="modal-body">
+<input type="text" class="radio-search" id="radio-search" placeholder="🔍 Поиск станций...">
+<div class="radio-categories" id="radio-categories"></div>
+<div class="stations-grid" id="stations-grid"></div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-worldradio">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🌍 World Radio — тысячи станций мира</span><button class="modal-close" data-close="worldradio">✕</button></div>
+<div class="modal-body">
+<div class="m-scope" id="m-scope-world">
+<div class="mtabs">
+<button class="active" data-mtab="search">🔍 Поиск</button>
+<button data-mtab="results">📋 Результаты</button>
+</div>
+<div class="mtab-page active" data-mtab="search">
+<div class="wr-search-row">
+<input type="text" id="wr-name" placeholder="🔍 Название станции...">
+<input type="text" id="wr-country" list="wr-countries" placeholder="🌍 Страна...">
+<input type="text" id="wr-tag" list="wr-tags" placeholder="🎼 Жанр (tag)?">
+<button id="wr-search-btn">Найти</button>
+</div>
+<datalist id="wr-countries"></datalist>
+<datalist id="wr-tags"></datalist>
+</div>
+<div class="mtab-page" data-mtab="results">
+<div class="stations-grid" id="wr-grid"><div class="fm-empty">Нажмите «Найти» для поиска станций</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-somafm">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🌌 SomaFM — 24 станции</span><button class="modal-close" data-close="somafm">✕</button></div>
+<div class="modal-body">
+<input type="text" class="radio-search" id="soma-search" placeholder="🔍 Поиск станций SomaFM...">
+<div class="stations-grid" id="soma-grid"></div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-favorites">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">⭐ Избранные радиостанции</span><button class="modal-close" data-close="favorites">✕</button></div>
+<div class="modal-body"><div class="stations-grid" id="favorites-grid"></div></div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-playlists">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🎼 Библиотека плейлистов</span><button class="modal-close" data-close="playlists">✕</button></div>
+<div class="modal-body">
+<div style="margin-bottom:8px;"><button id="lib-new-pl">+ Новый плейлист</button></div>
+<div class="stations-grid" id="playlists-grid"></div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-slots">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🎛 Слоты 1–16 — активные источники</span><button class="modal-close" data-close="slots">✕</button></div>
+<div class="modal-body"><div class="playlist-container" id="slots-page-list" style="height:100%;"></div></div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-rooms">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🏠 Комнаты и зоны — мультирум маршрутизация</span><button class="modal-close" data-close="rooms">✕</button></div>
+<div class="modal-body">
+<div class="m-scope" id="m-scope-rooms">
+<div class="mtabs">
+<button class="active" data-mtab="rooms">🏠 Комнаты</button>
+<button data-mtab="scenes">🎬 Сцены</button>
+</div>
+<div class="mtab-page active" data-mtab="rooms">
+<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+<button id="room-add">＋ Комната</button>
+<span style="font-size:10px;color:#556;">Комната = группа выходов с общим источником и громкостью.</span>
+</div>
+<div style="margin-bottom:10px;padding:8px;border:1px dashed #8a8a8a;border-radius:4px;background:rgba(255,255,255,.35);">
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+<strong style="font-size:11px;">🔗 Код комнаты:</strong>
+<input type="text" id="room-code-input" placeholder="ABCD" maxlength="4" style="width:80px;text-align:center;letter-spacing:3px;text-transform:uppercase;font-weight:700;">
+<button id="room-code-join">Присоединиться</button>
+<button id="room-code-new">Новый код</button>
+<button id="room-code-leave">Покинуть</button>
+<span id="room-code-status" style="font-size:10px;color:#33509a;"></span>
+</div>
+<div style="font-size:9px;color:#667;margin-top:4px;">Устройства с одинаковым кодом синхронизируют состояние комнат, воспроизведение и громкость.</div>
+</div>
+<div class="stations-grid" id="rooms-grid"></div>
+</div>
+<div class="mtab-page" data-mtab="scenes">
+<div class="rooms-scenes" style="margin-top:0;">
+<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
+<strong style="font-size:11px;">🎬 Сцены:</strong>
+<input type="text" id="scene-name" placeholder="Название сцены…" style="flex:1;min-width:140px;">
+<button id="scene-save">Сохранить текущую</button>
+</div>
+<div id="scenes-list" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-matrix">
+<div class="modal-window size-matrix">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🔀 Матрица 20×19 — маршрутизация выходов</span><button class="modal-close" data-close="matrix">✕</button></div>
+<div class="modal-body">
+<div class="matrix-wrapper">
+<div class="matrix-presets">
+<button data-matrix="clear" class="danger">Очистить</button>
+<button data-matrix="diagonal">Диагональ</button>
+<button data-matrix="all">Все</button>
+<button data-matrix="stereo">Стерео</button>
+<button id="btn-monitor-stereo">🎧 Авто L/R</button>
+<button data-matrix="undo">↩ Undo</button>
+</div>
+<div class="output-info" id="output-info">Физических выходов: —</div>
+<div class="matrix-grid" id="matrix-grid"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-mixer">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🎚️ Микшер 20 каналов — Channels / Groups / Aux / Outputs</span><button class="modal-close" data-close="mixer">✕</button></div>
+<div class="modal-body">
+<div class="mix-tabs">
+<button class="mix-tab active" data-mixtab="ch">Channels</button>
+<button class="mix-tab" data-mixtab="grp">Groups</button>
+<button class="mix-tab" data-mixtab="aux">Aux</button>
+<button class="mix-tab" data-mixtab="out">Outputs</button>
+</div>
+<div class="mix-pane active" id="mixpane-ch"><div class="mixer-channels" id="mixer-channels"></div></div>
+<div class="mix-pane" id="mixpane-grp"><div id="groups-wrap"></div></div>
+<div class="mix-pane" id="mixpane-aux"><div id="aux-wrap"></div></div>
+<div class="mix-pane" id="mixpane-out"><div id="outputs-wrap"></div></div>
+</div>
+</div>
+</div>
+<!-- ===== YouTube: отдельный источник ВНЕ матрицы ===== -->
+<div class="modal-overlay" id="modal-youtube">
+<div class="modal-window size-large">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">▶ YouTube — отдельный источник (вне матрицы)</span><button class="modal-close" data-close="youtube">✕</button></div>
+<div class="modal-body">
+<div class="wr-search-row">
+<input type="text" id="yt-url" placeholder="Ссылка YouTube (watch?v=… / youtu.be/…) или 11-симв. ID">
+<button id="yt-load">▶ Играть</button>
+</div>
+<div class="wr-search-row">
+<input type="text" id="yt-q" placeholder="🔍 Поиск (нужен YouTube Data API v3 key)">
+<input type="text" id="yt-key" placeholder="API key (необязательно)" style="max-width:220px;">
+<button id="yt-search">Найти</button>
+</div>
+<div class="stations-grid" id="yt-results"></div>
+<div class="yt-now"><span class="yt-state" id="yt-state">остановлено</span><span id="yt-now-text" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Ничего не загружено</span></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0;">
+<span id="yt-api-status" style="font-size:10px;color:#8a4a00;">API: не запущен</span>
+<button id="yt-retry" class="pllib-btn">↻ Перезагрузить YouTube API</button>
+</div>
+<div class="yt-transport">
+<button id="yt-play" title="Играть">▶</button>
+<button id="yt-pause" title="Пауза">⏸</button>
+<button id="yt-stop" title="Стоп">⏹</button>
+<div class="yt-vol">🔊 <input type="range" id="yt-vol" min="0" max="100" value="80"></div>
+</div>
+<div class="yt-seek-row">
+<span class="prog-time" id="yt-cur">0:00</span>
+<input type="range" id="yt-seek" min="0" max="1000" value="0">
+<span class="prog-time" id="yt-dur">0:00</span>
+</div>
+<div class="yt-note">YouTube-модуль — отдельный источник ВНЕ матрицы: звук идёт напрямую в устройство вывода, свой транспорт и громкость. Чтобы завести YouTube ВНУТРЬ матрицы/комнат — в микшере (Channels) слот 17 «▶ Tab/YouTube»: захватывайте ВКЛАДКУ со звуком и заглушите её собственный звук (ПКМ по вкладке → «Выключить звук»), иначе эхо. Захват ЭКРАНА/окна даёт самозахват — не маршрутизируйте слепо. API грузится с www.youtube.com: если YouTube заблокирован (регион/adblock/DNS) — плеер не поднимется (поможет VPN/прокси).</div>
+<div style="width:2px;height:2px;overflow:hidden;"><div id="yt-player"></div></div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-app">
+<div class="modal-window size-app">
+<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">⬇ Приложение</span><button class="modal-close" data-close="app">✕</button></div>
+<div class="modal-body">
+<div style="display:flex;flex-direction:column;gap:8px;max-width:340px;margin:0 auto;">
+<button id="app-install-btn">⬇ Установить приложение</button>
+<button id="app-fullscreen-btn">⛶ Во весь экран</button>
+<button id="app-cache-btn">↻ Очистить кэш и перезагрузить</button>
+<div style="font-size:10px;color:#556;line-height:1.6;">Mix Player v.1 — Multi-Room.<br>Если кнопка установки недоступна — используйте меню браузера «Добавить на главный экран».</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ПУЛЬТ -->
+<div id="remote-overlay">
+<div class="remote-header" id="remote-header" title="Свернуть/развернуть пульт">
+<span class="remote-grip">≡</span>
+<span class="remote-title">📱 Пульт Mix Player</span>
+<span class="remote-room-code" id="remote-room-code">----</span>
+<span class="remote-collapse" id="remote-collapse">▼</span>
+<button id="remote-exit" class="modal-close">✕</button>
+</div>
+<div class="remote-body" id="remote-body">
+<div class="remote-now-playing">
+<div class="remote-np-label">Now Playing</div>
+<div class="remote-np-text" id="remote-np-text">Нет источника</div>
+</div>
+<div class="remote-transport">
+<button class="remote-btn" id="remote-prev">⏮</button>
+<button class="remote-btn" id="remote-play">▶</button>
+<button class="remote-btn" id="remote-next">⏭</button>
+</div>
+<div class="remote-transport">
+<button class="remote-btn" id="remote-pause">⏸</button>
+<button class="remote-btn" id="remote-stop">⏹</button>
+<button class="remote-btn" id="remote-mute">🔊</button>
+</div>
+<div class="remote-volume">
+<div class="remote-volume-label">ГРОМКОСТЬ</div>
+<input type="range" id="remote-master-vol" min="0" max="100" value="80">
+</div>
+<div class="remote-rooms-list" id="remote-rooms-list"></div>
+</div>
+</div>
+<script>
+const $=(s,c=document)=>c.querySelector(s);
+const $$=(s,c=document)=>[...c.querySelectorAll(s)];
+const MATRIX_SIZE=16;
+/* ===== ВИРТУАЛЬНЫЕ СУЩНОСТИ ===== */
+const VIRT_IN=[{id:'capture',name:'CAPTURE'},{id:'mic',name:'MIC'},{id:'loop',name:'LOOP'},{id:'tone',name:'TONE'}];
+const VOUT=[{id:'rec',name:'REC'},{id:'sub',name:'SUB'},{id:'mono',name:'MONO'}];
+const IN_COUNT=MATRIX_SIZE+VIRT_IN.length;   /* 20 */
+const OUT_COUNT=MATRIX_SIZE+VOUT.length;     /* 19 */
+const META_PROXY_URL='meta_proxy.php';
+const FAVORITES_KEY='mixplayer_favorites';
+const PLAYLISTS_KEY='mixplayer_playlists';
+const SESSION_KEY='mixplayer_session';
+const ROOMS_KEY='mixplayer_rooms';
+const ROOM_CODE_KEY='mixplayer_room_code';
+const WR_SERVERS=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info','https://api.radio-browser.info'];
+/* === СИНХРОНИЗАЦИЯ: идентификатор устройства и лампортовские часы === */
+const DEVICE_ID=(()=>{try{let id=localStorage.getItem('mixplayer_device_id');if(!id){id=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('mixplayer_device_id',id);}return id;}catch(e){return 'dev'+Math.random().toString(36).slice(2,8);}})();
+let lastReceivedVersion=0;
+let lastPublishTs=0;
+let isRoomHost=false;
+let hostDeviceId=null;
+let wrServerIdx=0,wrMetaLoaded=false,wrInitialSearchDone=false;
+let favorites=[];
+let currentCategory="🎯 Главное";
+let playlists={'Мой плейлист':[]};
+let playlistPlayers={'Мой плейлист':{slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'}};
+let activePlaylistName='Мой плейлист';
+let playlistNextId=1;
+let metaProxyAvailable=false;
+let seeking=false;
+let roomCode=null;
+let syncChannel=null;
+let syncStateVersion=0;
+let isApplyingRemote=false;
+let remoteSlotsInfo=null;
+let lastPublishedCmd=null;
+let lastHandledCmd=null;
+let mediaRecorder=null,recChunks=[],recStartTs=0;
+const SYNC_INTERVAL=2000;
+function setSyncStatus(text,ok=true){
+const el=$('#sync-status');
+if(el){
+el.textContent='Синхронизация: '+text;
+el.style.color=ok?'#33509a':'#a05000';
+}
+}
+function generateRoomCode(){
+const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+let c='';
+for(let i=0;i<4;i++)c+=chars[Math.floor(Math.random()*chars.length)];
+return c;
+}
+function joinRoom(code,skipPublish){
+if(!code||code.length!==4){showToast('Код должен быть 4 символа','error');return;}
+code=code.toUpperCase();
+roomCode=code;
+try{localStorage.setItem(ROOM_CODE_KEY,code);}catch(e){}
+try{
+if(syncChannel)syncChannel.close();
+syncChannel=new BroadcastChannel('mixplayer_room_'+code);
+syncChannel.onmessage=(ev)=>{handleSyncMessage(ev.data);};
+}catch(e){}
+$('#room-code-input').value=code;
+$('#room-code-status').textContent=`Комната: ${code}`;
+$('#remote-room-code').textContent=code;
+setSyncStatus(`комната ${code}`);
+isRoomHost=!skipPublish;
+hostDeviceId=isRoomHost?DEVICE_ID:null;
+if(!skipPublish)publishLocalState('join');
+pollRemoteState();
+const msg=skipPublish?'📥 Подключено к комнате '+code:'🔗 Комната: '+code;
+showToast(msg,skipPublish?'info':'success');
+}
+function leaveRoom(){
+if(syncChannel){try{syncChannel.close();}catch(e){}}
+syncChannel=null;
+roomCode=null;
+isRoomHost=false;
+hostDeviceId=null;
+try{localStorage.removeItem(ROOM_CODE_KEY);}catch(e){}
+$('#room-code-input').value='';
+$('#room-code-status').textContent='Не в комнате';
+$('#remote-room-code').textContent='—';
+setSyncStatus('не активна',false);
+showToast('🔓 Покинули комнату','info');
+}
+function buildSyncState(){
+const state={
+version:syncStateVersion,
+origin:DEVICE_ID,
+isHost:isRoomHost,
+hostDeviceId:hostDeviceId,
+time:Date.now(),
+rooms:JSON.parse(JSON.stringify(roomsConfig.rooms)),
+scenes:JSON.parse(JSON.stringify(roomsConfig.scenes)),
+activePlaylist:activePlaylistName,
+players:{},
+masterVolume:engine.masterVolume,
+slotsInfo:engine.slots.map(s=>(s.audio||s.active)?{n:(s.track&&s.track.name)||'',t:s.nowTitle||'',on:s.isPlaying,m:s.isMuted}:null)
+};
+for(const name in playlistPlayers){
+const p=playlistPlayers[name];
+state.players[name]={
+isPlaying:p.isPlaying,
+currentIndex:p.currentIndex,
+slotIndex:p.slotIndex,
+assignedSlot:p.assignedSlot,
+playMode:p.playMode
+};
+}
+return state;
+}
+function publishStateObject(state){
+if(syncChannel){
+try{syncChannel.postMessage(state);}catch(e){}
+}
+if(roomCode){
+const url=META_PROXY_URL+'?action=state&room='+encodeURIComponent(roomCode)+'&set=1&data='+encodeURIComponent(JSON.stringify(state));
+fetch(url,{cache:'no-store'}).catch(()=>{});
+}
+}
+function publishLocalState(action='update'){
+if(!isRoomHost && roomCode && hostDeviceId)return;
+syncStateVersion=Math.max(syncStateVersion,lastReceivedVersion)+1;
+const state=buildSyncState();
+state.action=action;
+lastPublishTs=Date.now();
+publishStateObject(state);
+}
+function sendCmd(action,roomId){
+if(!isRoomHost)return;
+const cmd={id:DEVICE_ID+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),action:action,room:(roomId!=null?roomId:null)};
+lastPublishedCmd=cmd.id;
+syncStateVersion=Math.max(syncStateVersion,lastReceivedVersion)+1;
+const state=buildSyncState();
+state.cmd=cmd;
+state.action='cmd';
+lastPublishTs=Date.now();
+publishStateObject(state);
+}
+function handleSyncMessage(state){
+if(!state||!state.version)return;
+if(state.origin===DEVICE_ID)return;
+if(state.isHost && state.hostDeviceId && !hostDeviceId){
+isRoomHost=false;
+hostDeviceId=state.hostDeviceId;
+}
+if(state.version>lastReceivedVersion)lastReceivedVersion=state.version;
+if(state.version<=syncStateVersion)return;
+applyRemoteState(state);
+}
+async function applyRemoteState(state){
+if(isApplyingRemote)return;
+isApplyingRemote=true;
+try{
+syncStateVersion=state.version;
+if(roomCode)setSyncStatus(`комната ${roomCode} ✓`);
+if(state.slotsInfo)remoteSlotsInfo=state.slotsInfo;
+if(state.cmd && state.cmd.id!==lastPublishedCmd && state.cmd.id!==lastHandledCmd){
+lastHandledCmd=state.cmd.id;
+handleRemoteCmd(state.cmd);
+}
+if(state.rooms){
+roomsConfig.rooms=JSON.parse(JSON.stringify(state.rooms));
+let maxId=0;
+roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
+roomNextId=maxId+1;
+saveRoomsConfig();
+if(engine.ctx)applyAllRooms();
+if($('#modal-rooms').classList.contains('open'))renderRooms();
+}
+if(state.scenes){
+roomsConfig.scenes=JSON.parse(JSON.stringify(state.scenes));
+saveRoomsConfig();
+if($('#modal-rooms').classList.contains('open'))renderRooms();
+}
+if(state.activePlaylist && playlists[state.activePlaylist]){
+activePlaylistName=state.activePlaylist;
+renderPlaylistSelector();renderPlaylist();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();
+}
+if(state.players){
+for(const name in state.players){
+if(!playlistPlayers[name])continue;
+const remote=state.players[name];
+const local=playlistPlayers[name];
+if(remote.playMode && remote.playMode!==local.playMode){
+local.playMode=remote.playMode;
+if(name===activePlaylistName)updatePlayModeBtn();
+}
+if(remote.assignedSlot!==undefined && remote.assignedSlot!==local.assignedSlot){
+local.assignedSlot=remote.assignedSlot;
+if(name===activePlaylistName)updatePlaylistPanelHeader();
+}
+}
+}
+if(typeof state.masterVolume==='number' && Math.abs(state.masterVolume-engine.masterVolume)>0.01){
+engine.setMasterVolume(state.masterVolume);
+$('#master-vol').value=Math.round(state.masterVolume*100);
+$('#remote-master-vol').value=Math.round(state.masterVolume*100);
+$('#btn-mute').textContent=state.masterVolume>0?'🔊':'';
+}
+updateRemoteUI();
+}catch(e){console.warn('applyRemoteState error:',e);}
+finally{isApplyingRemote=false;}
+}
+/* Команды пульта выполняются ТОЛЬКО на устройстве-плеере */
+function handleRemoteCmd(cmd){
+if(!cmd||!cmd.action)return;
+let slotIdx=-1,plName=null;
+if(cmd.room!=null){
+const room=findRoom(cmd.room);
+if(room&&room.sourceSlot>=0)slotIdx=room.sourceSlot;
+}
+if(slotIdx<0)slotIdx=engine.slots.findIndex(s=>s.isPlaying);
+if(slotIdx>=0)plName=findPlaylistBySlot(slotIdx);
+if(!plName)plName=activePlaylistName;
+const isPlayer=engine.getPlayingCount()>0||(slotIdx>=0&&!!engine.slots[slotIdx]&&!!engine.slots[slotIdx].audio);
+if(!isPlayer)return;
+const hasPl=!!(playlists[plName]&&playlists[plName].length);
+switch(cmd.action){
+case 'next': if(hasPl)nextPlaylistTrack(plName,false); break;
+case 'prev': if(hasPl)prevPlaylistTrack(plName); break;
+case 'play': if(hasPl)togglePlaylistPlay(plName); else engine.playAll(); break;
+case 'pause': if(hasPl)pausePlaylist(plName); else engine.pauseAll(); break;
+case 'stop': if(hasPl)stopPlaylist(plName); else engine.stopAll(); break;
+}
+if(isRoomHost)publishLocalState('cmd-applied');
+}
+function localIsPlayer(){return engine.getPlayingCount()>0;}
+function isHost(){return isRoomHost && roomCode;}
+function remoteAct(action,roomId){
+if(isHost()){
+sendCmd(action,roomId);
+return;
+}
+switch(action){
+case 'play': if(getActivePlaylist().length)togglePlaylistPlay(activePlaylistName); else engine.playAll(); break;
+case 'pause': pausePlaylist(activePlaylistName); engine.pauseAll(); break;
+case 'stop': stopPlaylist(activePlaylistName); engine.stopAll(); break;
+case 'prev': prevPlaylistTrack(activePlaylistName); break;
+case 'next': nextPlaylistTrack(activePlaylistName,false); break;
+}
+updateRemoteUI();
+}
+async function pollRemoteState(){
+if(!roomCode)return;
+try{
+const resp=await fetch(META_PROXY_URL+'?action=state&room='+encodeURIComponent(roomCode),{cache:'no-store'});
+if(resp.ok){
+const data=await resp.json();
+if(data && data.version){
+handleSyncMessage(data);
+}
+}
+}catch(e){}
+}
+let roomsConfig={rooms:[],scenes:[]};
+let roomNextId=1;
+function loadRoomsConfig(){
+try{
+const raw=localStorage.getItem(ROOMS_KEY);
+if(raw){
+const d=JSON.parse(raw);
+if(d&&Array.isArray(d.rooms))roomsConfig=d;
+}
+}catch(e){}
+if(!Array.isArray(roomsConfig.scenes))roomsConfig.scenes=[];
+let maxId=0;
+roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
+roomNextId=maxId+1;
+}
+function saveRoomsConfig(){
+try{localStorage.setItem(ROOMS_KEY,JSON.stringify(roomsConfig));}catch(e){}
+if(!isApplyingRemote && isRoomHost)publishLocalState('rooms');
+}
+function findRoom(id){return roomsConfig.rooms.find(r=>r.id===id);}
+function roomApply(room){
+if(!engine.ctx)return;
+room.outputs.forEach(out=>{
+for(let i=0;i<MATRIX_SIZE;i++)engine.matrix[i][out]=false;
+if(room.sourceSlot>=0)engine.matrix[room.sourceSlot][out]=true;
+engine.setOutputGain(out,room.muted?0:room.volume);
+});
+engine.applyMatrix();
+}
+function applyAllRooms(){
+if(!engine.ctx)return;
+roomsConfig.rooms.forEach(roomApply);
+renderMatrix();
+renderMixer();
+}
+function createRoom(){
+const name=prompt('Название комнаты/зоны:');
+if(!name)return;
+const trimmed=name.trim();
+if(!trimmed)return;
+const used=new Set();
+roomsConfig.rooms.forEach(r=>r.outputs.forEach(o=>used.add(o)));
+const free=[];
+for(let o=0;o<MATRIX_SIZE;o++)if(!used.has(o))free.push(o);
+const outputs=free.slice(0,2);
+roomsConfig.rooms.push({id:roomNextId++,name:trimmed,outputs:outputs,sourceSlot:-1,volume:0.8,muted:false,sleepAt:0});
+saveRoomsConfig();
+applyAllRooms();
+renderRooms();
+showToast(`🏠 Создана комната: ${trimmed}`,'success');
+}
+function deleteRoom(id){
+const room=findRoom(id);
+if(!room)return;
+if(!confirm(`Удалить комнату "${room.name}"?`))return;
+roomsConfig.rooms=roomsConfig.rooms.filter(r=>r.id!==id);
+saveRoomsConfig();
+applyAllRooms();
+renderRooms();
+}
+function renameRoom(id){
+const room=findRoom(id);
+if(!room)return;
+const n=prompt('Новое название комнаты:',room.name);
+if(!n)return;
+const t=n.trim();
+if(!t)return;
+room.name=t;
+saveRoomsConfig();
+renderRooms();
+}
+function toggleRoomOutput(id,out){
+const room=findRoom(id);
+if(!room)return;
+const idx=room.outputs.indexOf(out);
+if(idx>=0)room.outputs.splice(idx,1);
+else room.outputs.push(out);
+saveRoomsConfig();
+roomApply(room);
+renderMatrix();
+renderRooms();
+}
+function setRoomSource(id,slot){
+const room=findRoom(id);
+if(!room)return;
+room.sourceSlot=slot;
+saveRoomsConfig();
+roomApply(room);
+renderMatrix();
+renderRooms();
+}
+function setRoomVolume(id,v){
+const room=findRoom(id);
+if(!room)return;
+room.volume=v;
+saveRoomsConfig();
+if(!room.muted)room.outputs.forEach(out=>engine.setOutputGain(out,v));
+}
+function toggleRoomMute(id){
+const room=findRoom(id);
+if(!room)return;
+room.muted=!room.muted;
+saveRoomsConfig();
+room.outputs.forEach(out=>engine.setOutputGain(out,room.muted?0:room.volume));
+renderRooms();
+}
+function setRoomSleep(id,minutes){
+const room=findRoom(id);
+if(!room)return;
+room.sleepAt=minutes>0?Date.now()+minutes*60000:0;
+saveRoomsConfig();
+renderRooms();
+if(minutes>0)showToast(`🏠 ${room.name}: таймер сна ${minutes} мин`,'info');
+}
+function playRoomSource(id){
+const room=findRoom(id);
+if(!room)return;
+if(room.sourceSlot<0){showToast('Не выбран источник комнаты','error');return;}
+engine.playSlot(room.sourceSlot);
+}
+function checkRoomSleepTimers(){
+let changed=false;
+roomsConfig.rooms.forEach(room=>{
+if(room.sleepAt&&Date.now()>=room.sleepAt){
+room.sleepAt=0;
+room.muted=true;
+roomApply(room);
+changed=true;
+showToast(`🏠 ${room.name}: таймер сна — звук выключен`,'info');
+}
+});
+if(changed){
+saveRoomsConfig();
+if($('#modal-rooms').classList.contains('open'))renderRooms();
+}
+}
+function saveScene(){
+const name=$('#scene-name').value.trim();
+if(!name){showToast('Введите название сцены','error');return;}
+roomsConfig.scenes.push({id:Date.now(),name:name,rooms:JSON.parse(JSON.stringify(roomsConfig.rooms))});
+$('#scene-name').value='';
+saveRoomsConfig();
+renderRooms();
+showToast(`🎬 Сцена "${name}" сохранена`,'success');
+}
+function applyScene(id){
+const s=roomsConfig.scenes.find(x=>x.id===id);
+if(!s)return;
+roomsConfig.rooms=JSON.parse(JSON.stringify(s.rooms));
+let maxId=0;
+roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
+roomNextId=maxId+1;
+saveRoomsConfig();
+applyAllRooms();
+renderRooms();
+showToast(`🎬 Сцена "${s.name}" применена`,'success');
+if(isRoomHost)publishLocalState('scene');
+}
+function deleteScene(id){
+roomsConfig.scenes=roomsConfig.scenes.filter(x=>x.id!==id);
+saveRoomsConfig();
+renderRooms();
+}
+function renderRooms(){
+const grid=$('#rooms-grid');
+if(!grid)return;
+grid.innerHTML='';
+if(!roomsConfig.rooms.length){
+grid.innerHTML='<div class="fm-empty">Комнат пока нет.<br>Нажмите «＋ Комната», чтобы создать первую зону.</div>';
+}
+roomsConfig.rooms.forEach(room=>{
+const card=document.createElement('div');
+card.className='room-card';
+card.innerHTML=`
+<div class="room-head">
+<span class="room-name">🏠 ${escapeHtml(room.name)}</span>
+<span class="room-actions">
+<button class="pllib-btn rm-rename">✎</button>
+<button class="pllib-btn rm-del">✕</button>
+</span>
+</div>
+<div class="room-outputs">${Array.from({length:MATRIX_SIZE},(_,o)=>`<button class="out-chip${room.outputs.includes(o)?' on':''}" data-out="${o}">${o+1}</button>`).join('')}</div>
+<div class="room-row">
+<label>Источник:</label>
+<select class="rm-source">
+<option value="-1">— не назначен —</option>
+${Array.from({length:MATRIX_SIZE},(_,i)=>`<option value="${i}"${room.sourceSlot===i?' selected':''}>${i+1}: ${escapeHtml(engine.slots[i]?.track?.name||'(пусто)')}</option>`).join('')}
+</select>
+<button class="pllib-btn rm-play">▶</button>
+</div>
+<div class="room-row">
+<label>Громкость:</label>
+<input type="range" class="rm-vol" min="0" max="100" value="${Math.round(room.volume*100)}">
+<button class="pllib-btn rm-mute${room.muted?' active':''}">${room.muted?'MUTED':'ON'}</button>
+</div>
+<div class="room-row">
+<label>Сон:</label>
+<select class="rm-sleep">
+<option value="0">выкл</option>
+<option value="15">15 мин</option>
+<option value="30">30 мин</option>
+<option value="60">60 мин</option>
+</select>
+<span class="room-status">${room.muted?'🔇 выкл':(room.sourceSlot>=0?'▶ слот '+(room.sourceSlot+1):'нет источника')}</span>
+</div>`;
+card.querySelector('.rm-rename').onclick=(e)=>{e.stopPropagation();renameRoom(room.id);};
+card.querySelector('.rm-del').onclick=(e)=>{e.stopPropagation();deleteRoom(room.id);};
+card.querySelectorAll('.out-chip').forEach(chip=>{
+chip.onclick=(e)=>{e.stopPropagation();toggleRoomOutput(room.id,parseInt(chip.dataset.out,10));};
+});
+card.querySelector('.rm-source').onchange=(e)=>{setRoomSource(room.id,parseInt(e.target.value,10));};
+card.querySelector('.rm-play').onclick=(e)=>{e.stopPropagation();playRoomSource(room.id);};
+card.querySelector('.rm-vol').oninput=(e)=>{setRoomVolume(room.id,parseInt(e.target.value,10)/100);};
+card.querySelector('.rm-mute').onclick=(e)=>{e.stopPropagation();toggleRoomMute(room.id);};
+card.querySelector('.rm-sleep').onchange=(e)=>{setRoomSleep(room.id,parseInt(e.target.value,10));};
+grid.appendChild(card);
+});
+const sl=$('#scenes-list');
+if(sl){
+sl.innerHTML='';
+if(!roomsConfig.scenes.length){
+sl.innerHTML='<span style="font-size:10px;color:#667;">Сцен пока нет.</span>';
+}
+roomsConfig.scenes.forEach(s=>{
+const wrap=document.createElement('span');
+wrap.className='scene-chip';
+wrap.innerHTML=`<button class="pllib-btn sc-apply">▶ ${escapeHtml(s.name)}</button> <button class="pllib-btn sc-del">✕</button>`;
+wrap.querySelector('.sc-apply').onclick=()=>applyScene(s.id);
+wrap.querySelector('.sc-del').onclick=()=>deleteScene(s.id);
+sl.appendChild(wrap);
+});
+}
+}
+function toggleRemoteMode(){
+const overlay=$('#remote-overlay');
+if(overlay.classList.contains('active')){
+overlay.classList.remove('active');
+}else{
+overlay.classList.add('active');
+updateRemoteUI();
+}
+}
+function primaryPlayingSlot(){
+for(let i=0;i<MATRIX_SIZE;i++){const s=engine.slots[i];if(s.isPlaying&&!s.isMuted)return i;}
+for(let i=0;i<MATRIX_SIZE;i++){const s=engine.slots[i];if(s.isPlaying)return i;}
+return -1;
+}
+/* ===== Бегущая строка ===== */
+function setMarquee(el,text){
+if(!el)return;
+if(el.__mqText!==text){
+el.__mqText=text;
+el.innerHTML='';
+const wrap=document.createElement('span');wrap.className='mq-wrap';
+const a=document.createElement('span');a.className='mq';a.textContent=text;
+const b=document.createElement('span');b.className='mq';b.textContent=text;
+wrap.appendChild(a);wrap.appendChild(b);
+el.appendChild(wrap);
+}
+const first=el.querySelector('.mq');
+if(first){
+const contentW=first.offsetWidth;
+el.classList.toggle('marquee',contentW>el.clientWidth+4);
+}
+}
+/* ===== МЕТАДАННЫЕ «Исполнитель — Трек» через meta_proxy ===== */
+async function fetchSlotMeta(slotIndex){
+const slot=engine.slots[slotIndex];
+if(!slot||!slot.audio||!slot.isPlaying||slot.type!=='radio')return;
+if(!metaProxyAvailable)return;
+const origUrl=(slot.track&&slot.track.meta&&slot.track.meta.station&&slot.track.meta.station.url)||slot.track?.url;
+if(!origUrl||origUrl.startsWith('blob:')||origUrl.startsWith(META_PROXY_URL))return;
+try{
+const resp=await fetch(META_PROXY_URL+'?action=meta&url='+encodeURIComponent(origUrl),{cache:'no-store'});
+if(!resp.ok)return;
+const data=await resp.json();
+if(data&&data.title&&slot.nowTitle!==data.title){
+slot.nowTitle=data.title;
+updateNowPlayingDisplay();updateRemoteUI();renderSlots();updateMediaSession();
+if($('#modal-mixer').classList.contains('open'))renderMixer();
+}
+}catch(e){}
+}
+function pollAllMeta(){
+if(!metaProxyAvailable)return;
+for(let i=0;i<MATRIX_SIZE;i++){
+const s=engine.slots[i];
+if(s.audio&&s.isPlaying&&s.type==='radio')fetchSlotMeta(i);
+}
+}
+setInterval(pollAllMeta,15000);
+function updateRemoteUI(){
+const npText=$('#remote-np-text');
+if(npText){
+const sources=[];
+engine.slots.forEach((slot,i)=>{if(slot.isPlaying&&!slot.isMuted)sources.push(`[${i+1}] ${slot.track?.name||'?'}${slot.nowTitle?' — '+slot.nowTitle:''}`);});
+if(sources.length){setMarquee(npText,sources.join(' • '));}
+else{setMarquee(npText,'Нет источника');}
+}
+const rvol=$('#remote-master-vol');
+if(rvol)rvol.value=Math.round(engine.masterVolume*100);
+const rmute=$('#remote-mute');
+if(rmute)rmute.textContent=engine.masterVolume>0?'🔊':'';
+const list=$('#remote-rooms-list');
+if(!list)return;
+list.innerHTML='';
+if(!roomsConfig.rooms.length){
+list.innerHTML='<div style="text-align:center;padding:12px;color:#4d78c8;">Нет комнат</div>';
+return;
+}
+roomsConfig.rooms.forEach(room=>{
+const srcSlot=room.sourceSlot>=0?engine.slots[room.sourceSlot]:null;
+const div=document.createElement('div');
+div.className='remote-room'+(srcSlot&&srcSlot.isPlaying?' playing':'')+(room.muted?' muted':'');
+const trackName=srcSlot?(srcSlot.nowTitle||srcSlot.track?.name||'(пусто)'):'нет источника';
+div.innerHTML=`
+<div class="remote-room-head">
+<span class="remote-room-name">🏠 ${escapeHtml(room.name)}</span>
+<span class="remote-room-status">${room.muted?'🔇':'▶'} ${escapeHtml(String(trackName).slice(0,32))}</span>
+</div>
+<div class="remote-room-controls">
+<button class="remote-btn remote-room-btn rm-remote-play">▶</button>
+<button class="remote-btn remote-room-btn rm-remote-prev">⏮</button>
+<button class="remote-btn remote-room-btn rm-remote-next">⏭</button>
+<button class="remote-btn remote-room-btn rm-remote-mute${room.muted?' muted':''}">${room.muted?'🔇':''}</button>
+</div>
+<div class="remote-room-volume">
+<label>Vol</label>
+<input type="range" min="0" max="100" value="${Math.round(room.volume*100)}" class="rm-remote-vol">
+</div>`;
+div.querySelector('.rm-remote-play').onclick=()=>remoteAct('play',room.id);
+div.querySelector('.rm-remote-prev').onclick=()=>remoteAct('prev',room.id);
+div.querySelector('.rm-remote-next').onclick=()=>remoteAct('next',room.id);
+div.querySelector('.rm-remote-mute').onclick=()=>toggleRoomMute(room.id);
+div.querySelector('.rm-remote-vol').oninput=(e)=>setRoomVolume(room.id,parseInt(e.target.value,10)/100);
+list.appendChild(div);
+});
+}
+function findPlaylistBySlot(slotIdx){
+for(const name in playlistPlayers){
+if(playlistPlayers[name].assignedSlot===slotIdx)return name;
+}
+return null;
+}
+const PLAY_MODES=[
+{id:'seq',     label:'➔ По порядку'},
+{id:'repeat',  label:'🔁 Все треки'},
+{id:'one',     label:'🔂 Один трек'},
+{id:'shuffle', label:'🔀 Случайно'}
+];
+function getPlayMode(name){
+const p=playlistPlayers[name];
+return (p&&p.playMode)?p.playMode:'seq';
+}
+function updatePlayModeBtn(){
+const btn=$('#pl-mode-btn');
+if(!btn)return;
+const mode=getPlayMode(activePlaylistName);
+const m=PLAY_MODES.find(x=>x.id===mode)||PLAY_MODES[0];
+btn.textContent=m.label;
+}
+function cyclePlayMode(){
+const player=playlistPlayers[activePlaylistName];
+if(!player)return;
+const cur=player.playMode||'seq';
+const idx=PLAY_MODES.findIndex(m=>m.id===cur);
+const next=PLAY_MODES[(idx+1)%PLAY_MODES.length];
+player.playMode=next.id;
+updatePlayModeBtn();
+savePlaylistsToStorage();
+if(isRoomHost)publishLocalState('mode');
+showToast('Режим: '+next.label,'info',1500);
+}
+const IDB_NAME='mixplayer_tracks';
+const IDB_STORE='tracks';
+let idbPromise=null;
+function idbOpen(){
+if(idbPromise)return idbPromise;
+idbPromise=new Promise((resolve,reject)=>{
+if(!('indexedDB' in window)){reject(new Error('IndexedDB недоступна'));return;}
+const req=indexedDB.open(IDB_NAME,1);
+req.onupgradeneeded=()=>{
+const db=req.result;
+if(!db.objectStoreNames.contains(IDB_STORE)){
+db.createObjectStore(IDB_STORE,{keyPath:'id'});
+}
+};
+req.onsuccess=()=>resolve(req.result);
+req.onerror=()=>reject(req.error);
+});
+return idbPromise;
+}
+async function idbPutTrack(id,name,blob,mime){
+try{
+const db=await idbOpen();
+return await new Promise((resolve,reject)=>{
+const tx=db.transaction(IDB_STORE,'readwrite');
+tx.objectStore(IDB_STORE).put({id:id,name:name,mime:mime||blob.type||'audio/mpeg',blob:blob});
+tx.oncomplete=()=>resolve(true);
+tx.onerror=()=>reject(tx.error);
+tx.onabort=()=>reject(tx.error);
+});
+}catch(e){
+console.warn('IDB put error:',e);
+return false;
+}
+}
+async function idbGetTrack(id){
+try{
+const db=await idbOpen();
+return await new Promise((resolve)=>{
+const tx=db.transaction(IDB_STORE,'readonly');
+const req=tx.objectStore(IDB_STORE).get(id);
+req.onsuccess=()=>resolve(req.result||null);
+req.onerror=()=>resolve(null);
+});
+}catch(e){return null;}
+}
+async function idbDeleteTrack(id){
+try{
+const db=await idbOpen();
+return await new Promise((resolve)=>{
+const tx=db.transaction(IDB_STORE,'readwrite');
+tx.objectStore(IDB_STORE).delete(id);
+tx.oncomplete=()=>resolve(true);
+tx.onerror=()=>resolve(false);
+});
+}catch(e){return false;}
+}
+const localUrlCache={};
+function freeLocalUrl(dbId){
+if(localUrlCache[dbId]){
+try{URL.revokeObjectURL(localUrlCache[dbId]);}catch(e){}
+delete localUrlCache[dbId];
+}
+}
+async function resolveTrackUrl(track){
+if(track&&track.local&&track.dbId){
+if(localUrlCache[track.dbId])return localUrlCache[track.dbId];
+const rec=await idbGetTrack(track.dbId);
+if(rec&&rec.blob){
+const url=URL.createObjectURL(rec.blob);
+localUrlCache[track.dbId]=url;
+return url;
+}
+return null;
+}
+return track?track.url:null;
+}
+function purgeLocalTracks(tracks){
+if(!tracks)return;
+tracks.forEach(t=>{
+if(t.local&&t.dbId){
+freeLocalUrl(t.dbId);
+idbDeleteTrack(t.dbId);
+}
+});
+}
+const RADIO_CATALOG={
+"🎯 Главное":[
+{id:"rr_main",name:"Record",desc:"Главная танцевальная станция",url:"https://radiorecord.hostingradio.ru/rr_main96.aacp"},
+{id:"bighits",name:"Big Hits",desc:"Самые популярные хиты",url:"https://radiorecord.hostingradio.ru/bighits96.aacp"},
+{id:"top100edm",name:"TOP 100 EDM",desc:"Топ-100 электронных треков",url:"https://radiorecord.hostingradio.ru/top100edm96.aacp"},
+{id:"party",name:"Party 24/7",desc:"Нон-стоп вечеринка",url:"https://radiorecord.hostingradio.ru/party96.aacp"},
+{id:"mix",name:"Megamix",desc:"Лучшие миксы",url:"https://radiorecord.hostingradio.ru/mix96.aacp"},
+{id:"rmx",name:"Remix",desc:"Ремиксы на хиты",url:"https://radiorecord.hostingradio.ru/rmx96.aacp"},
+{id:"club",name:"Club / EDM",desc:"Клубная электроника",url:"https://radiorecord.hostingradio.ru/club96.aacp"},
+{id:"gold",name:"Record Gold",desc:"Золотые хиты Record",url:"https://radiorecord.hostingradio.ru/gold96.aacp"},
+{id:"hype",name:"На Хайпе",desc:"Самое актуальное",url:"https://radiorecord.hostingradio.ru/hype96.aacp"}
+],
+"💃 House":[
+{id:"deep",name:"Deep",desc:"Deep House",url:"https://radiorecord.hostingradio.ru/deep96.aacp"},
+{id:"househits",name:"House Hits",desc:"House хиты",url:"https://radiorecord.hostingradio.ru/househits96.aacp"},
+{id:"houseclss",name:"House Classics",desc:"Классика House",url:"https://radiorecord.hostingradio.ru/houseclss96.aacp"},
+{id:"chillhouse",name:"Chill House",desc:"Расслабляющий House",url:"https://radiorecord.hostingradio.ru/chillhouse96.aacp"},
+{id:"vip",name:"VIP House",desc:"Премиум House",url:"https://radiorecord.hostingradio.ru/vip96.aacp"},
+{id:"jackin",name:"Bass House",desc:"Bass House / Jackin",url:"https://radiorecord.hostingradio.ru/jackin96.aacp"},
+{id:"techouse",name:"Tech House",desc:"Tech House",url:"https://radiorecord.hostingradio.ru/techouse96.aacp"},
+{id:"trop",name:"Tropical",desc:"Tropical House",url:"https://radiorecord.hostingradio.ru/trop96.aacp"},
+{id:"fut",name:"Future House",desc:"Future House",url:"https://radiorecord.hostingradio.ru/fut96.aacp"},
+{id:"ukgarage",name:"UK Garage",desc:"UK Garage",url:"https://radiorecord.hostingradio.ru/ukgarage96.aacp"},
+{id:"2step",name:"2-step",desc:"2-step Garage",url:"https://radiorecord.hostingradio.ru/2step96.aacp"},
+{id:"groovetribal",name:"Groove/Tribal",desc:"Groove и Tribal House",url:"https://radiorecord.hostingradio.ru/groovetribal96.aacp"}
+],
+"🌊 Транс и Техно":[
+{id:"tm",name:"Trancemission",desc:"Транс всех поджанров",url:"https://radiorecord.hostingradio.ru/tm96.aacp"},
+{id:"trancehits",name:"Trance Classics",desc:"Классика транса",url:"https://radiorecord.hostingradio.ru/trancehits96.aacp"},
+{id:"trancehouse",name:"Trancehouse",desc:"Trance + House",url:"https://radiorecord.hostingradio.ru/trancehouse96.aacp"},
+{id:"uplift",name:"Uplifting",desc:"Uplifting Trance",url:"https://radiorecord.hostingradio.ru/uplift96.aacp"},
+{id:"techno",name:"Techno",desc:"Техно",url:"https://radiorecord.hostingradio.ru/techno96.aacp"},
+{id:"mini",name:"Minimal/Tech",desc:"Минимал и микро-хаус",url:"https://radiorecord.hostingradio.ru/mini96.aacp"},
+{id:"mt",name:"Midtempo",desc:"Midtempo techno",url:"https://radiorecord.hostingradio.ru/mt96.aacp"},
+{id:"goa",name:"GOA/PSY",desc:"Психоделический транс",url:"https://radiorecord.hostingradio.ru/goa96.aacp"},
+{id:"progr",name:"Progressive",desc:"Progressive House/Trance",url:"https://radiorecord.hostingradio.ru/progr96.aacp"},
+{id:"futurerave",name:"Future Rave",desc:"Future Rave",url:"https://radiorecord.hostingradio.ru/futurerave96.aacp"},
+{id:"dream",name:"Dream Dance",desc:"Dream Dance",url:"https://radiorecord.hostingradio.ru/dream96.aacp"}
+],
+"🔊 Drum & Bass":[
+{id:"drumhits",name:"D'n'B Classics",desc:"Классика D'n'B",url:"https://radiorecord.hostingradio.ru/drumhits96.aacp"},
+{id:"liquidfunk",name:"Liquid Funk",desc:"Liquid Drum & Bass",url:"https://radiorecord.hostingradio.ru/liquidfunk96.aacp"},
+{id:"neurofunk",name:"Neurofunk",desc:"Нейрофанк",url:"https://radiorecord.hostingradio.ru/neurofunk96.aacp"},
+{id:"jungle",name:"Jungle",desc:"Джангл",url:"https://radiorecord.hostingradio.ru/jungle96.aacp"}
+],
+"🎤 Хип-хоп и Рэп":[
+{id:"yo",name:"Black Rap",desc:"Хип-хоп и R'n'B",url:"https://radiorecord.hostingradio.ru/yo96.aacp"},
+{id:"rap",name:"Rap Hits",desc:"Рэп хиты",url:"https://radiorecord.hostingradio.ru/rap96.aacp"},
+{id:"rapclassics",name:"Rap Classics",desc:"Классика рэпа",url:"https://radiorecord.hostingradio.ru/rapclassics96.aacp"},
+{id:"trap",name:"Trap",desc:"Трэп",url:"https://radiorecord.hostingradio.ru/trap96.aacp"},
+{id:"phonk",name:"Phonk",desc:"Фонк",url:"https://radiorecord.hostingradio.ru/phonk96.aacp"},
+{id:"mmbt",name:"Moombahton",desc:"Moombahton",url:"https://radiorecord.hostingradio.ru/mmbt96.aacp"}
+],
+"🎸 Рок":[
+{id:"rock",name:"Rock",desc:"Рок-музыка",url:"https://radiorecord.hostingradio.ru/rock96.aacp"}
+],
+"🧘 Chill и Ambient":[
+{id:"chil",name:"Chill-Out",desc:"Chillout музыка",url:"https://radiorecord.hostingradio.ru/chil96.aacp"},
+{id:"ambient",name:"Ambient",desc:"Эмбиент",url:"https://radiorecord.hostingradio.ru/ambient96.aacp"},
+{id:"lofi",name:"Lo-Fi",desc:"Lo-Fi beats",url:"https://radiorecord.hostingradio.ru/lofi96.aacp"},
+{id:"summerlounge",name:"Summer Lounge",desc:"Летний лаунж",url:"https://radiorecord.hostingradio.ru/summerlounge64.aacp"},
+{id:"ibiza",name:"Innocence",desc:"Ibiza chill",url:"https://radiorecord.hostingradio.ru/ibiza96.aacp"},
+{id:"organic",name:"Organic",desc:"Organic House",url:"https://radiorecord.hostingradio.ru/organic96.aacp"},
+{id:"christmaschill",name:"Christmas Chill",desc:"Рождественский чилл",url:"https://radiorecord.hostingradio.ru/christmaschill96.aacp"}
+],
+"🎵 Дабстеп и Bass":[
+{id:"dub",name:"Dubstep",desc:"Dubstep",url:"https://radiorecord.hostingradio.ru/dub96.aacp"},
+{id:"brks",name:"Breaks",desc:"Breakbeat",url:"https://radiorecord.hostingradio.ru/brks96.aacp"},
+{id:"fbass",name:"Future Bass",desc:"Future Bass",url:"https://radiorecord.hostingradio.ru/fbass96.aacp"},
+{id:"hbass",name:"Hard Bass",desc:"Hard Bass",url:"https://radiorecord.hostingradio.ru/hbass96.aacp"},
+{id:"elect",name:"Electro",desc:"Electro",url:"https://radiorecord.hostingradio.ru/elect96.aacp"},
+{id:"complextro",name:"Complextro",desc:"Complextro",url:"https://radiorecord.hostingradio.ru/complextro96.aacp"}
+],
+"🇷 Россия":[
+{id:"rus",name:"Russian Mix",desc:"Русская танцевальная",url:"https://radiorecord.hostingradio.ru/rus96.aacp"},
+{id:"rv",name:"Руки Вверх!",desc:"Руки Вверх!",url:"https://radiorecord.hostingradio.ru/rv96.aacp"},
+{id:"russianhits",name:"Russian Hits",desc:"Русские хиты",url:"https://radiorecord.hostingradio.ru/russianhits64.aacp"},
+{id:"russiangold",name:"Russian Gold",desc:"Золотые русские хиты",url:"https://radiorecord.hostingradio.ru/russiangold96.aacp"},
+{id:"gop",name:"Гоп FM",desc:"Пацанская музыка",url:"https://radiorecord.hostingradio.ru/gop96.aacp"},
+{id:"mf",name:"Маятник Фуко",desc:"Русская электроника",url:"https://radiorecord.hostingradio.ru/mf96.aacp"},
+{id:"gast",name:"Гастарбайтер FM",desc:"Музыка народов СНГ",url:"https://radiorecord.hostingradio.ru/gast96.aacp"},
+{id:"mdl",name:"Медляк FM",desc:"Медленные танцы",url:"https://radiorecord.hostingradio.ru/mdl96.aacp"},
+{id:"deti",name:"Веснушка FM",desc:"Детская музыка",url:"https://radiorecord.hostingradio.ru/deti96.aacp"},
+{id:"ruszima",name:"Русская Зима",desc:"Зимние русские хиты",url:"https://radiorecord.hostingradio.ru/ruszima96.aacp"}
+],
+"🎬 Ретро":[
+{id:"1980",name:"Record 80-х",desc:"Музыка 80-х",url:"https://radiorecord.hostingradio.ru/198096.aacp"},
+{id:"sd90",name:"Супердискотека 90-х",desc:"Музыка 90-х",url:"https://radiorecord.hostingradio.ru/sd9096.aacp"},
+{id:"2000",name:"Рекорд 00-х",desc:"Музыка 2000-х",url:"https://radiorecord.hostingradio.ru/200096.aacp"},
+{id:"2010",name:"10's Dance",desc:"Танцевальная 2010-х",url:"https://radiorecord.hostingradio.ru/201096.aacp"},
+{id:"1970",name:"70's Dance",desc:"Танцевальная 70-х",url:"https://radiorecord.hostingradio.ru/197096.aacp"},
+{id:"cadillac",name:"60's Dance",desc:"Танцевальная 60-х",url:"https://radiorecord.hostingradio.ru/cadillac96.aacp"},
+{id:"discofunk",name:"Disco/Funk",desc:"Диско и фанк",url:"https://radiorecord.hostingradio.ru/discofunk96.aacp"},
+{id:"eurodance",name:"Eurodance",desc:"Евроденс",url:"https://radiorecord.hostingradio.ru/eurodance96.aacp"},
+{id:"edmhits",name:"EDM Classics",desc:"Классика EDM",url:"https://radiorecord.hostingradio.ru/edmhits96.aacp"},
+{id:"dc",name:"Dancecore",desc:"Dancecore",url:"https://radiorecord.hostingradio.ru/dc96.aacp"},
+{id:"pump",name:"Old School",desc:"Pump / Old School",url:"https://radiorecord.hostingradio.ru/pump96.aacp"}
+],
+"🎤 DJ и Шоу":[
+{id:"tiesto",name:"Tiesto",desc:"Музыка от Tiesto",url:"https://radiorecord.hostingradio.ru/tiesto96.aacp"},
+{id:"guetta",name:"David Guetta",desc:"Музыка от David Guetta",url:"https://radiorecord.hostingradio.ru/guetta96.aacp"},
+{id:"armin",name:"Armin van Buuren",desc:"Музыка от Armin van Buuren",url:"https://radiorecord.hostingradio.ru/armin96.aacp"},
+{id:"livedjsets",name:"Live DJ-sets",desc:"Живые DJ-сеты",url:"https://radiorecord.hostingradio.ru/livedjsets96.aacp"}
+],
+"🎧 Специальное":[
+{id:"ps",name:"Pirate Station",desc:"Pirate Station",url:"https://radiorecord.hostingradio.ru/ps96.aacp"},
+{id:"summerparty",name:"Summer Dance",desc:"Летняя танцевальная",url:"https://radiorecord.hostingradio.ru/summerparty96.aacp"},
+{id:"workout",name:"Workout",desc:"Музыка для спорта",url:"https://radiorecord.hostingradio.ru/workout96.aacp"},
+{id:"reggae",name:"Reggae",desc:"Регги",url:"https://radiorecord.hostingradio.ru/reggae96.aacp"},
+{id:"latina",name:"Latina Dance",desc:"Латиноамериканская танцевальная",url:"https://radiorecord.hostingradio.ru/latina96.aacp"},
+{id:"tecktonik",name:"Tecktonik",desc:"Tecktonik",url:"https://radiorecord.hostingradio.ru/tecktonik96.aacp"},
+{id:"synth",name:"Synthwave",desc:"Synthwave / Retrowave",url:"https://radiorecord.hostingradio.ru/synth96.aacp"},
+{id:"darkside",name:"Darkside",desc:"Тёмная электроника",url:"https://radiorecord.hostingradio.ru/darkside96.aacp"},
+{id:"teo",name:"Hardstyle",desc:"Hardstyle",url:"https://radiorecord.hostingradio.ru/teo96.aacp"},
+{id:"rave",name:"Rave FM",desc:"Рейв-музыка",url:"https://radiorecord.hostingradio.ru/rave96.aacp"},
+{id:"hypno",name:"Hypnotic",desc:"Гипнотическая музыка",url:"https://radiorecord.hostingradio.ru/hypno96.aacp"},
+{id:"dreampop",name:"Dream Pop",desc:"Dream Pop",url:"https://radiorecord.hostingradio.ru/dreampop96.aacp"},
+{id:"technopop",name:"Technopop",desc:"Technopop",url:"https://radiorecord.hostingradio.ru/technopop96.aacp"},
+{id:"christmas",name:"Christmas",desc:"Рождественская музыка",url:"https://radiorecord.hostingradio.ru/christmas96.aacp"},
+{id:"naft",name:"Нафталин FM",desc:"Советская эстрада",url:"https://radiorecord.hostingradio.ru/naft96.aacp"},
+{id:"symph",name:"Симфония FM",desc:"Классическая музыка",url:"https://radiorecord.hostingradio.ru/symph96.aacp"}
+]
+};
+const SOMAFM_STATIONS=[
+{id:"groovesalad",name:"Groove Salad",desc:"A nicely chilled plate of ambient/downtempo beats and grooves",url:"https://ice1.somafm.com/groovesalad-128-mp3"},
+{id:"dronezone",name:"Drone Zone",desc:"Atmospheric textures with nearly entirely ambient textures",url:"https://ice1.somafm.com/dronezone-128-mp3"},
+{id:"deepspaceone",name:"Deep Space One",desc:"Deep ambient electronic and experimental music",url:"https://ice1.somafm.com/deepspaceone-128-mp3"},
+{id:"defcon",name:"DEF CON Radio",desc:"Music for Hacking. DEF CON conference radio",url:"https://ice1.somafm.com/defcon-128-mp3"},
+{id:"secretagent",name:"Secret Agent",desc:"The soundtrack for your stylish, mysterious, dangerous life",url:"https://ice1.somafm.com/secretagent-128-mp3"},
+{id:"lush",name:"Lush",desc:"Sensuous and mellow vocals, mostly female, with sophisticated electronic elements",url:"https://ice1.somafm.com/lush-128-mp3"},
+{id:"beatblender",name:"Beat Blender",desc:"A deep and rhythmic house music blend",url:"https://ice1.somafm.com/beatblender-128-mp3"},
+{id:"fluid",name:"Fluid",desc:"Drown in the liquid drum and bass and liquid funk",url:"https://ice1.somafm.com/fluid-128-mp3"},
+{id:"thetrip",name:"The Trip",desc:"Progressive house / trance. Tip of the new releases",url:"https://ice1.somafm.com/thetrip-128-mp3"},
+{id:"spacestation",name:"Space Station Soma",desc:"Spaced-out ambient and mid-tempo electronica",url:"https://ice1.somafm.com/spacestation-128-mp3"},
+{id:"doomed",name:"Doomed",desc:"Dark industrial/ambient with dark experimental electronica",url:"https://ice1.somafm.com/doomed-128-mp3"},
+{id:"cliqhop",name:"Cliqhop",desc:"Idm and blip-hop with intelligent dance music",url:"https://ice1.somafm.com/cliqhop-128-mp3"},
+{id:"suburbspop",name:"Suburbs of Goa",desc:"Desi-influenced Asian world beats and beyond",url:"https://ice1.somafm.com/suburbspop-128-mp3"},
+{id:"bootliquor",name:"Boot Liquor",desc:"Americana Roots music for Cowhands, Cowpokes and Cowgirls",url:"https://ice1.somafm.com/bootliquor-128-mp3"},
+{id:"poptron",name:"PopTron",desc:"Electropop and indie dance rock with sparkle and pop",url:"https://ice1.somafm.com/poptron-128-mp3"},
+{id:"covers",name:"Covers",desc:"Just the covers. Songs you know, but not the original artists",url:"https://ice1.somafm.com/covers-128-mp3"},
+{id:"7soul",name:"7 Inch Soul",desc:"Vintage soul tracks from the 60s and 70s",url:"https://ice1.somafm.com/7soul-128-mp3"},
+{id:"vaporwaves",name:"Vaporwaves",desc:"All Vaporwave. All the time",url:"https://ice1.somafm.com/vaporwaves-128-mp3"},
+{id:"missioncontrol",name:"Mission Control",desc:"Celebrating women in NASA and space exploration",url:"https://ice1.somafm.com/missioncontrol-128-mp3"},
+{id:"leftcoast",name:"Left Coast 70s",desc:"Mellow album rock from the Seventies. Yacht rock",url:"https://ice1.somafm.com/leftcoast-128-mp3"},
+{id:"bagel",name:"Bagel Radio",desc:"Bossa nova, jazz and world beats",url:"https://ice1.somafm.com/bagel-128-mp3"},
+{id:"n5md",name:"n5MD Radio",desc:"Ambient, experimental and atmospheric from n5MD records",url:"https://ice1.somafm.com/n5md-128-mp3"},
+{id:"seventies",name:"Seventies",desc:"Soul, funk, and R&B from the 1970s",url:"https://ice1.somafm.com/seventies-128-mp3"},
+{id:"metal",name:"Metal Detector",desc:"From black to doom metal, all metal genres",url:"https://ice1.somafm.com/metal-128-mp3"}
+];
+function escapeHtml(s){
+if(!s)return '';
+return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToast(msg,type='info',duration=3500){
+const el=document.createElement('div');
+el.className=`toast ${type}`;el.textContent=msg;
+$('#toast-container').appendChild(el);
+setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},duration);
+}
+function loadFavorites(){
+try{const raw=localStorage.getItem(FAVORITES_KEY);favorites=raw?JSON.parse(raw):[];}catch(e){favorites=[];}
+}
+function saveFavorites(){
+try{localStorage.setItem(FAVORITES_KEY,JSON.stringify(favorites));}catch(e){}
+}
+function isFavorite(id){return favorites.some(f=>f.id===id);}
+function toggleFavorite(station){
+const idx=favorites.findIndex(f=>f.id===station.id);
+if(idx>=0){favorites.splice(idx,1);showToast(`- ${station.name} из избранного`,'info');}
+else{favorites.push(station);showToast(`⭐ ${station.name} в избранное`,'success');}
+saveFavorites();updateFavoriteButtons();renderFavoritesIfOpen();
+}
+function updateFavoriteButtons(){
+$$('.fav-toggle').forEach(btn=>{
+const fav=isFavorite(btn.dataset.favId);
+btn.classList.toggle('active',fav);
+btn.textContent=fav?'★':'☆';
+});
+}
+function renderFavoritesIfOpen(){
+if($('#modal-favorites')?.classList.contains('open'))renderFavoritesGrid();
+}
+function getStreamUrl(url){
+return META_PROXY_URL+'?action=stream&url='+encodeURIComponent(url);
+}
+function makeImpulseResponse(ctx,dur,decay){
+const rate=ctx.sampleRate,len=Math.floor(rate*dur),buf=ctx.createBuffer(2,len,rate);
+for(let c=0;c<2;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay);}
+return buf;
+}
+class AudioEngine{
+constructor(){
+this.ctx=null;this.masterGain=null;this.analyser=null;
+this.channels=[];this.channelAnalysers=[];this.outGains=[];this.outAnalysers=[];
+this.matrix=Array.from({length:IN_COUNT},()=>Array.from({length:OUT_COUNT},()=>false));
+this.matrixHistory=[];this.masterVolume=0.8;
+this.useDiscreteOut=false;this.masterChannels=2;this.outMerger=null;
+this.defaultMonitorStereo=false;this.physicalOutputs=2;
+this.vizMode='bars';
+this.groupBuses=[];this.auxBuses=[];
+this.groupMatrix=Array.from({length:IN_COUNT},()=>[false,false,false,false]);
+this.auxMatrix=Array.from({length:IN_COUNT},()=>[0,0]);
+this.recDest=null;this.subFilter=null;this.monoSum=null;
+this.slots=Array.from({length:IN_COUNT},(_,i)=>({
+audio:null,source:null,webAudioEnabled:false,type:null,
+track:null,isPlaying:false,slotVolume:1.0,isMuted:false,
+nowTitle:'',coverUrl:'',
+kind:i<MATRIX_SIZE?'phys':'virt',virt:null,active:false
+}));
+}
+async init(){
+if(this.ctx)return;
+this.ctx=new (window.AudioContext||window.webkitAudioContext)();
+if(this.ctx.state==='suspended')await this.ctx.resume();
+this.configureOutput();
+this.masterGain=this.ctx.createGain();
+this.masterGain.gain.value=this.masterVolume;
+if(this.useDiscreteOut){
+try{this.masterGain.channelCount=this.masterChannels;this.masterGain.channelCountMode='explicit';this.masterGain.channelInterpretation='discrete';}catch(e){}
+}else{
+try{this.masterGain.channelCount=Math.max(1,this.masterChannels);this.masterGain.channelCountMode='explicit';this.masterGain.channelInterpretation='speakers';}catch(e){}
+}
+this.analyser=this.ctx.createAnalyser();
+this.analyser.fftSize=2048;this.analyser.smoothingTimeConstant=0.8;
+for(let i=0;i<IN_COUNT;i++){
+const ch=this.ctx.createGain();ch.gain.value=1;this.setupBusNode(ch);this.channels.push(ch);
+const analyser=this.ctx.createAnalyser();
+analyser.fftSize=512;
+analyser.smoothingTimeConstant=0.7;
+this.channelAnalysers.push(analyser);
+}
+for(let o=0;o<OUT_COUNT;o++){
+const og=this.ctx.createGain();og.gain.value=1;this.outGains.push(og);
+}
+this.buildOutputGraph();
+this.applyMatrix();
+$('#status-audio').textContent=`Аудио: ${this.ctx.sampleRate}Hz | ${this.ctx.state}`;
+$('#audio-overlay').classList.add('hidden');
+showToast('Аудиодвижок запущен • '+IN_COUNT+' входов / '+OUT_COUNT+' выходов','success');
+updateOutputInfo();resizeMainViz();updateNowPlayingDisplay();renderSlots();
+this.startLoops();
+}
+configureOutput(){
+try{
+const dest=this.ctx.destination;
+const max=dest.maxChannelCount||2;
+const desired=Math.min(MATRIX_SIZE,max);
+try{dest.channelCount=desired;}catch(e){}
+const actual=dest.channelCount||desired||2;
+if(actual>=2){
+try{dest.channelCountMode='explicit';dest.channelInterpretation='discrete';}catch(e){}
+this.useDiscreteOut=true;this.physicalOutputs=Math.min(MATRIX_SIZE,actual);
+}else{
+try{dest.channelCountMode='explicit';dest.channelInterpretation='speakers';}catch(e){}
+this.useDiscreteOut=false;this.physicalOutputs=1;
+}
+this.masterChannels=this.useDiscreteOut?this.physicalOutputs:Math.max(1,actual);
+}catch(e){
+this.useDiscreteOut=false;this.physicalOutputs=1;this.masterChannels=1;
+}
+}
+setupBusNode(node){
+try{node.channelCount=2;node.channelCountMode='clamped-max';node.channelInterpretation='speakers';}catch(e){}
+}
+buildOutputGraph(){
+this.masterGain.connect(this.analyser);
+this.analyser.connect(this.ctx.destination);
+if(this.useDiscreteOut){
+const outs=Math.max(2,this.physicalOutputs);
+this.outMerger=this.ctx.createChannelMerger(outs);
+try{this.outMerger.channelCount=outs;this.outMerger.channelCountMode='explicit';this.outMerger.channelInterpretation='discrete';}catch(e){}
+for(let o=0;o<this.physicalOutputs;o++)this.outGains[o].connect(this.outMerger,0,o);
+this.outMerger.connect(this.masterGain);
+}else{
+for(let o=0;o<MATRIX_SIZE;o++)this.outGains[o].connect(this.masterGain);
+}
+/* ===== ВИРТУАЛЬНЫЕ ВЫХОДЫ: REC / SUB / MONO ===== */
+this.recDest=this.ctx.createMediaStreamDestination();
+this.outGains[MATRIX_SIZE+0].connect(this.recDest);
+this.subFilter=this.ctx.createBiquadFilter();this.subFilter.type='lowpass';this.subFilter.frequency.value=120;
+this.outGains[MATRIX_SIZE+1].connect(this.subFilter);this.subFilter.connect(this.masterGain);
+this.monoSum=this.ctx.createGain();
+try{this.monoSum.channelCount=1;this.monoSum.channelCountMode='explicit';}catch(e){}
+this.outGains[MATRIX_SIZE+2].connect(this.monoSum);this.monoSum.connect(this.masterGain);
+for(let o=0;o<OUT_COUNT;o++){const a=this.ctx.createAnalyser();a.fftSize=256;a.smoothingTimeConstant=0.7;this.outGains[o].connect(a);this.outAnalysers.push(a);}
+/* ===== ГРУППОВЫЕ ШИНЫ (4) ===== */
+this.groupBuses=[0,1,2,3].map(()=>{const gn=this.ctx.createGain();gn.gain.value=0.8;gn.connect(this.masterGain);return{gain:gn,level:0.8,muted:false};});
+/* ===== AUX ШИНЫ (2): Reverb / Delay ===== */
+const rev=this.ctx.createConvolver();rev.buffer=makeImpulseResponse(this.ctx,2.2,2.8);
+const dly=this.ctx.createDelay(1);dly.delayTime.value=0.28;
+const fb=this.ctx.createGain();fb.gain.value=0.35;dly.connect(fb);fb.connect(dly);
+this.auxBuses=[{input:this.ctx.createGain(),fx:rev,ret:this.ctx.createGain()},{input:this.ctx.createGain(),fx:dly,ret:this.ctx.createGain()}];
+this.auxBuses.forEach((A,a)=>{
+A.input.connect(A.fx);A.fx.connect(A.ret);A.ret.connect(this.masterGain);A.ret.gain.value=0.5;A.level=0.5;A.sends=[];
+for(let ch=0;ch<IN_COUNT;ch++){const sg=this.ctx.createGain();sg.gain.value=this.auxMatrix[ch][a]||0;this.channels[ch].connect(sg);sg.connect(A.input);A.sends.push(sg);}
+});
+}
+toggleMatrix(i,o){
+this.matrixHistory.push(this.matrix.map(row=>row.slice()));
+if(this.matrixHistory.length>50)this.matrixHistory.shift();
+this.matrix[i][o]=!this.matrix[i][o];
+this.applyMatrix();renderMatrix();renderMixer();
+}
+hasRoute(ch){
+if(!this.matrix[ch])return false;
+return this.matrix[ch].some(v=>v);
+}
+applyMatrix(){
+if(!this.ctx)return;
+for(let input=0;input<IN_COUNT;input++){
+const ch=this.channels[input];
+const analyser=this.channelAnalysers[input];
+try{ch.disconnect();}catch(e){}
+ch.connect(analyser);
+for(let out=0;out<OUT_COUNT;out++){
+if(this.matrix[input][out]){
+if(out<MATRIX_SIZE){
+if(!this.useDiscreteOut||out<this.physicalOutputs)ch.connect(this.outGains[out]);
+}else{
+ch.connect(this.outGains[out]);
+}
+}
+}
+}
+}
+setOutputGain(out,v){
+if(this.outGains[out]){
+this.outGains[out].gain.setTargetAtTime(v,this.ctx.currentTime,0.02);
+}
+}
+setMatrixPreset(name){
+this.matrixHistory.push(this.matrix.map(row=>row.slice()));
+if(this.matrixHistory.length>50)this.matrixHistory.shift();
+this.matrix=Array.from({length:IN_COUNT},()=>Array.from({length:OUT_COUNT},()=>false));
+if(name==='diagonal'){for(let i=0;i<MATRIX_SIZE;i++){const t=(this.useDiscreteOut&&this.physicalOutputs>0)?(i%this.physicalOutputs):i;this.matrix[i][t]=true;}}
+else if(name==='all'){const outs=this.useDiscreteOut?this.physicalOutputs:Math.min(2,MATRIX_SIZE);for(let i=0;i<MATRIX_SIZE;i++)for(let o=0;o<outs;o++)this.matrix[i][o]=true;}
+else if(name==='stereo'){const outs=Math.min(2,this.useDiscreteOut?this.physicalOutputs:MATRIX_SIZE);for(let i=0;i<MATRIX_SIZE;i++)for(let o=0;o<outs;o++)this.matrix[i][o]=true;}
+this.applyMatrix();renderMatrix();renderMixer();
+}
+undoMatrix(){
+if(!this.matrixHistory.length)return;
+this.matrix=this.matrixHistory.pop();
+this.applyMatrix();renderMatrix();renderMixer();
+}
+autoRouteInput(channel){
+if(this.matrix[channel].some(v=>v))return;
+if(this.useDiscreteOut&&this.physicalOutputs>=2&&this.defaultMonitorStereo){this.matrix[channel][0]=true;this.matrix[channel][1]=true;}
+else if(this.useDiscreteOut&&this.physicalOutputs>0){this.matrix[channel][channel%this.physicalOutputs]=true;}
+else{this.matrix[channel][channel%2]=true;}
+this.applyMatrix();renderMatrix();renderMixer();
+}
+setChannelGain(ch,v){
+const slot=this.slots[ch];
+slot.slotVolume=v;
+if(this.channels[ch]){
+this.channels[ch].gain.setTargetAtTime(v,this.ctx.currentTime,0.02);
+}
+}
+setMasterVolume(v){
+this.masterVolume=v;
+if(this.masterGain)this.masterGain.gain.setTargetAtTime(v,this.ctx.currentTime,0.02);
+for(const slot of this.slots){if(slot.audio&&!slot.webAudioEnabled)slot.audio.volume=v*slot.slotVolume;}
+}
+setSlotVolume(slotIndex,v){
+const slot=this.slots[slotIndex];
+slot.slotVolume=v;
+if(slot.kind==='virt'||slot.webAudioEnabled){
+this.setChannelGain(slotIndex,v);
+}else if(slot.audio){
+slot.audio.volume=this.masterVolume*v;
+}
+}
+setMute(ch,muted){
+const slot=this.slots[ch];
+slot.isMuted=muted;
+if(this.channels[ch]){
+if(muted){
+this.channels[ch].gain.setTargetAtTime(0,this.ctx.currentTime,0.02);
+}else{
+this.channels[ch].gain.setTargetAtTime(slot.slotVolume,this.ctx.currentTime,0.02);
+}
+}
+renderMixer();renderSlots();
+}
+setGroupAssign(ch,g,on){
+this.groupMatrix[ch][g]=!!on;
+const G=this.groupBuses[g];if(!G)return;
+if(on){this.channels[ch].connect(G.gain);}
+else{try{this.channels[ch].disconnect(G.gain);}catch(e){}}
+}
+setGroupLevel(g,v){const G=this.groupBuses[g];if(!G)return;G.level=v;G.gain.gain.value=G.muted?0:v;}
+setGroupMute(g,m){const G=this.groupBuses[g];if(!G)return;G.muted=m;G.gain.gain.value=m?0:G.level;}
+setAuxSend(ch,a,v){this.auxMatrix[ch][a]=v;const A=this.auxBuses[a];if(A)A.sends[ch].gain.value=v;}
+setAuxReturn(a,v){const A=this.auxBuses[a];if(!A)return;A.level=v;A.ret.gain.value=v;}
+findFreeSlot(){for(let i=0;i<MATRIX_SIZE;i++){if(!this.slots[i].audio)return i;}return -1;}
+async loadIntoSlot(slotIndex,url,name,type='file',meta={}){
+if(!this.ctx){showToast('Сначала запустите аудиодвижок','error');return;}
+if(slotIndex<0||slotIndex>=MATRIX_SIZE){showToast('Неверный номер слота','error');return;}
+if(this.slots[slotIndex].audio)this.stopSlot(slotIndex);
+const audio=new Audio();
+if(!url.startsWith(META_PROXY_URL)&&!url.startsWith('blob:')){
+audio.crossOrigin='anonymous';
+}
+audio.preload=type==='radio'?'none':'auto';
+audio.src=url;
+const slot=this.slots[slotIndex];
+slot.audio=audio;slot.type=type;slot.track={name,url,meta};slot.isPlaying=false;
+slot.nowTitle='';slot.coverUrl='';
+let source=null,webAudioEnabled=false;
+try{
+source=this.ctx.createMediaElementSource(audio);
+source.connect(this.channels[slotIndex]);
+webAudioEnabled=true;
+}catch(e){
+webAudioEnabled=false;
+audio.volume=this.masterVolume*slot.slotVolume;
+}
+slot.source=source;slot.webAudioEnabled=webAudioEnabled;
+if(webAudioEnabled){
+this.autoRouteInput(slotIndex);
+if(slot.isMuted){
+this.channels[slotIndex].gain.setTargetAtTime(0,this.ctx.currentTime,0.02);
+}else{
+this.setChannelGain(slotIndex,slot.slotVolume);
+}
+}
+audio.addEventListener('play',()=>{slot.isPlaying=true;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateRemoteUI();updateMediaSession();saveSession();setTimeout(()=>fetchSlotMeta(slotIndex),1500);});
+audio.addEventListener('pause',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateRemoteUI();updateMediaSession();saveSession();});
+audio.addEventListener('ended',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();updateRemoteUI();if(typeof handleTrackEnded==='function')handleTrackEnded(slotIndex);});
+audio.addEventListener('error',()=>{showToast(`Ошибка в слоте ${slotIndex+1}: ${name}`,'error',4000);});
+renderSlots();
+return slot;
+}
+async playSlot(slotIndex){
+const slot=this.slots[slotIndex];
+if(!slot||!slot.audio)return;
+try{await slot.audio.play();}catch(e){showToast(`Ошибка в слоте ${slotIndex+1}: ${e.message}`,'error');}
+}
+pauseSlot(slotIndex){const slot=this.slots[slotIndex];if(slot&&slot.audio)slot.audio.pause();}
+stopSlot(slotIndex){
+const slot=this.slots[slotIndex];
+if(!slot||!slot.audio)return;
+try{slot.audio.pause();slot.audio.src='';if(slot.source)slot.source.disconnect();}catch(e){}
+slot.audio=null;slot.source=null;slot.webAudioEnabled=false;slot.type=null;
+slot.track=null;slot.isPlaying=false;slot.nowTitle='';slot.coverUrl='';
+renderSlots();updateNowPlayingDisplay();updateTransportInfo();updateRemoteUI();
+}
+async playAll(){let c=0;for(let i=0;i<MATRIX_SIZE;i++){const s=this.slots[i];if(s.audio&&!s.isPlaying){try{await s.audio.play();c++;}catch(e){}}}if(c>0)showToast(`▶ Запущено ${c} источников`,'success');}
+pauseAll(){let c=0;for(let i=0;i<MATRIX_SIZE;i++){const s=this.slots[i];if(s.audio&&s.isPlaying){s.audio.pause();c++;}}if(c>0)showToast(`⏸ Приостановлено ${c}`,'info');}
+stopAll(){
+for(let i=0;i<MATRIX_SIZE;i++)this.stopSlot(i);
+for(let i=MATRIX_SIZE;i<IN_COUNT;i++)if(this.slots[i].active)virtStop(i);
+showToast('⏹ Все слоты очищены','info');
+}
+getActiveCount(){return this.slots.filter(s=>s.audio!==null||s.active).length;}
+getPlayingCount(){return this.slots.filter(s=>s.isPlaying).length;}
+startLoops(){
+const freqData=new Uint8Array(this.analyser.frequencyBinCount);
+const waveData=new Uint8Array(this.analyser.fftSize);
+const loop=()=>{
+requestAnimationFrame(loop);
+if(!this.ctx||this.ctx.state!=='running')return;
+this.analyser.getByteFrequencyData(freqData);
+updateMeters();drawVisualization(freqData,waveData);
+updatePlaylistProgress();
+if($('#mixpane-out')&&$('#mixpane-out').classList.contains('active'))updateOutMeters();
+};
+loop();
+}
+}
+const engine=new AudioEngine();
+/* ===== ВИРТУАЛЬНЫЕ ИСТОЧНИКИ (слоты 17–20) ===== */
+async function virtStart(idx,kind){
+if(!engine.ctx)return;
+virtStop(idx);
+try{
+if(kind==='capture'){
+/* ПАТЧ ВЕТКИ CAPTURE: подавление локального звука + контроль поверхности захвата */
+const stream=await navigator.mediaDevices.getDisplayMedia({
+video:true,
+audio:{
+suppressLocalAudioPlayback:true,
+echoCancellation:false,
+noiseSuppression:false,
+autoGainControl:false
+}
+});
+const at=stream.getAudioTracks()[0];
+if(!at){stream.getTracks().forEach(t=>t.stop());throw new Error('Нет аудиодорожки в захвате');}
+stream.getVideoTracks().forEach(t=>t.stop());
+at.onended=()=>virtStop(idx);
+const vs=stream.getVideoTracks()[0];
+const surf=(vs&&vs.getSettings)?(vs.getSettings().displaySurface||''):'';
+const sup=(at.getSettings)?!!at.getSettings().suppressLocalAudioPlayback:false;
+if(surf==='monitor'||surf==='window'){
+showToast('⚠ Захвачен ЭКРАН/окно: возможен самозахват (эхо). Рекомендуем захватывать ВКЛАДКУ; маршрутизируйте слот 17 вручную.','error',9000);
+}else{
+engine.matrix[idx][0]=true;engine.matrix[idx][1]=true;engine.applyMatrix();
+showToast('✓ CAPTURE: звук вкладки захвачен → слот 17 → OUT1+OUT2','success',5000);
+}
+if(!sup&&surf==='browser'){
+showToast('⚠ Браузер не подавил звук вкладки: заглушите вкладку-источник (ПКМ по вкладке → «Выключить звук»), иначе возможно эхо','error',9000);
+}
+const src=engine.ctx.createMediaStreamSource(new MediaStream([at]));
+src.connect(engine.channels[idx]);
+engine.slots[idx].virt={src,stream};
+}else if(kind==='mic'){
+const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}});
+const src=engine.ctx.createMediaStreamSource(stream);
+src.connect(engine.channels[idx]);
+engine.slots[idx].virt={src,stream};
+showToast('🎤 MIC активен','success');
+}else if(kind==='loop'){
+const src=engine.ctx.createGain();src.gain.value=1;
+engine.masterGain.connect(src);src.connect(engine.channels[idx]);
+engine.slots[idx].virt={src};
+showToast('⚠ LOOP: риск самовозбуждения при маршрутизации на выходы','error',5000);
+}else if(kind==='tone'){
+const osc=engine.ctx.createOscillator();osc.frequency.value=440;
+const g=engine.ctx.createGain();g.gain.value=0.5;osc.connect(g);g.connect(engine.channels[idx]);osc.start();
+engine.slots[idx].virt={src:g,osc};
+showToast('〜 TONE 440Hz активен','success');
+}
+engine.slots[idx].active=true;engine.slots[idx].isPlaying=true;
+engine.slots[idx].track={name:VIRT_IN[idx-MATRIX_SIZE].name,url:'virtual:'+kind};
+engine.setChannelGain(idx,engine.slots[idx].isMuted?0:engine.slots[idx].slotVolume);
+renderMixer();renderMatrix();renderSlots();updateNowPlayingDisplay();updateTransportInfo();
+}catch(e){showToast('Ошибка захвата: '+e.message,'error',5000);}
+}
+function virtStop(idx){
+const s=engine.slots[idx];
+if(s.virt){
+if(s.virt.stream)s.virt.stream.getTracks().forEach(t=>t.stop());
+if(s.virt.osc){try{s.virt.osc.stop();}catch(e){}}
+try{s.virt.src.disconnect();}catch(e){}
+s.virt=null;
+}
+s.active=false;s.isPlaying=false;s.track=null;
+renderMixer();renderMatrix();renderSlots();updateNowPlayingDisplay();updateTransportInfo();
+}
+/* ===== ЗАПИСЬ МИКСА (REC) ===== */
+function recStart(){
+if(!engine.ctx||mediaRecorder)return;
+try{
+const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':undefined;
+mediaRecorder=new MediaRecorder(engine.recDest.stream,mime?{mimeType:mime}:undefined);
+}catch(e){mediaRecorder=new MediaRecorder(engine.recDest.stream);}
+recChunks=[];recStartTs=Date.now();
+mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
+mediaRecorder.onstop=()=>{
+const blob=new Blob(recChunks,{type:mediaRecorder.mimeType||'audio/webm'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='mixplayer_rec_'+new Date().toISOString().replace(/[:.]/g,'-')+'.webm';
+document.body.appendChild(a);a.click();a.remove();
+setTimeout(()=>URL.revokeObjectURL(url),5000);
+showToast('⏺ Запись сохранена ('+Math.round(blob.size/1024)+' KB)','success');
+renderOutputs();
+};
+mediaRecorder.start(1000);
+showToast('⏺ Запись начата: пишем всё, что маршрутизировано на колонку REC в матрице','success',5000);
+renderOutputs();
+}
+function recStop(){
+if(mediaRecorder&&mediaRecorder.state!=='inactive'){mediaRecorder.stop();}
+mediaRecorder=null;
+renderOutputs();
+}
+function setProxyStatus(text){const el=$('#proxy-status');if(el)el.textContent=text;}
+async function checkProxyAvailability(){
+setProxyStatus('Прокси: проверка...');
+try{
+const resp=await fetch(META_PROXY_URL+'?ping=1',{cache:'no-store'});
+if(resp.ok){
+const d=await resp.json();
+if(d.status==='ok'){
+metaProxyAvailable=true;
+setProxyStatus('✓ Прокси доступен');
+pollAllMeta();
+return;
+}
+}
+metaProxyAvailable=false;
+}catch(e){
+metaProxyAvailable=false;
+}
+setProxyStatus('✗ Прокси недоступен');
+}
+function getActivePlaylist(){return playlists[activePlaylistName]||[];}
+function savePlaylistsToStorage(){
+try{
+const toSave={};
+for(const name in playlists){
+const tracks=playlists[name].filter(t=> t.local ? true : !t.url.startsWith('blob:'));
+toSave[name]={
+tracks:tracks,
+assignedSlot:playlistPlayers[name]?playlistPlayers[name].assignedSlot:0,
+playMode:playlistPlayers[name]?(playlistPlayers[name].playMode||'seq'):'seq'
+};
+}
+localStorage.setItem(PLAYLISTS_KEY,JSON.stringify({playlists:toSave,active:activePlaylistName}));
+}catch(e){
+showToast('Ошибка сохранения плейлистов (переполнение?)','error');
+}
+}
+function loadPlaylistsFromStorage(){
+try{
+const raw=localStorage.getItem(PLAYLISTS_KEY);
+if(raw){
+const data=JSON.parse(raw);
+const rawPls=data.playlists||{};
+playlists={};
+playlistPlayers={};
+let firstKey=Object.keys(rawPls)[0];
+if(firstKey && Array.isArray(rawPls[firstKey])){
+for(const name in rawPls){
+playlists[name]=rawPls[name];
+playlistPlayers[name]={slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'};
+}
+}else{
+for(const name in rawPls){
+const p=rawPls[name];
+playlists[name]=p.tracks||[];
+playlistPlayers[name]={
+slotIndex:-1,
+currentIndex:-1,
+isPlaying:false,
+assignedSlot:typeof p.assignedSlot==='number'?p.assignedSlot:0,
+playMode:p.playMode||'seq'
+};
+}
+}
+activePlaylistName=data.active||Object.keys(playlists)[0]||'Мой плейлист';
+if(Object.keys(playlists).length===0){
+playlists['Мой плейлист']=[];
+playlistPlayers['Мой плейлист']={slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'};
+activePlaylistName='Мой плейлист';
+}
+let maxId=0;
+for(const name in playlists)playlists[name].forEach(t=>{if(t.id>maxId)maxId=t.id;});
+playlistNextId=maxId+1;
+}else{
+playlists={'Мой плейлист':[]};
+playlistPlayers={'Мой плейлист':{slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'}};
+activePlaylistName='Мой плейлист';
+}
+}catch(e){
+playlists={'Мой плейлист':[]};
+playlistPlayers={'Мой плейлист':{slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'}};
+activePlaylistName='Мой плейлист';
+}
+}
+function renderPlaylistSelector(){
+const sel=$('#playlist-select');
+if(!sel)return;
+sel.innerHTML='';
+Object.keys(playlists).forEach(name=>{
+const opt=document.createElement('option');
+opt.value=name;opt.textContent=name;
+if(name===activePlaylistName)opt.selected=true;
+sel.appendChild(opt);
+});
+}
+$('#playlist-select')?.addEventListener('change',(e)=>{
+switchPlaylist(e.target.value);
+});
+function switchPlaylist(name){
+if(!playlists[name])return;
+activePlaylistName=name;
+renderPlaylistSelector();renderPlaylist();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();updatePlaylistProgress();updateRemoteUI();
+savePlaylistsToStorage();
+if(isRoomHost)publishLocalState('playlist');
+}
+function updatePlaylistPanelHeader(){
+const player=playlistPlayers[activePlaylistName];
+$('#pl-current-name').textContent=activePlaylistName;
+$('#pl-slot-badge').textContent='Слот: '+(player?player.assignedSlot+1:'—');
+}
+function createPlaylist(){
+const name=prompt('Имя нового плейлиста:');
+if(!name)return;
+const trimmed=name.trim();
+if(!trimmed)return;
+if(playlists[trimmed]){showToast('Плейлист уже существует','error');return;}
+const slotInput=prompt('На каком слоте (1-16) будет играть плейлист?','1');
+let assignedSlot=parseInt(slotInput,10)-1;
+if(isNaN(assignedSlot)||assignedSlot<0||assignedSlot>=MATRIX_SIZE){
+assignedSlot=0;
+}
+for(const pName in playlistPlayers){
+if(playlistPlayers[pName].assignedSlot===assignedSlot){
+if(!confirm(`Слот ${assignedSlot+1} уже используется плейлистом "${pName}". Продолжить?`)){
+return;
+}
+break;
+}
+}
+playlists[trimmed]=[];
+playlistPlayers[trimmed]={slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:assignedSlot,playMode:'seq'};
+switchPlaylist(trimmed);
+renderPlaylistLibrary();
+showToast(`Создан плейлист: ${trimmed} (слот ${assignedSlot+1})`,'success');
+}
+function changePlaylistSlot(name){
+const player=playlistPlayers[name];
+if(!player)return;
+const currentSlot=player.assignedSlot+1;
+const slotInput=prompt(`Слот для плейлиста "${name}" (1-16). Текущий: ${currentSlot}`,currentSlot);
+if(!slotInput)return;
+let newSlot=parseInt(slotInput,10)-1;
+if(isNaN(newSlot)||newSlot<0||newSlot>=MATRIX_SIZE){
+showToast('Неверный номер слота','error');
+return;
+}
+for(const pName in playlistPlayers){
+if(pName!==name && playlistPlayers[pName].assignedSlot===newSlot){
+if(!confirm(`Слот ${newSlot+1} используется плейлистом "${pName}". Переназначить?`)){
+return;
+}
+break;
+}
+}
+if(player.isPlaying && player.slotIndex>=0){
+engine.stopSlot(player.slotIndex);
+player.isPlaying=false;
+player.slotIndex=-1;
+}
+player.assignedSlot=newSlot;
+renderPlaylistLibrary();renderSlots();updatePlaylistStatus();updatePlaylistPanelHeader();
+savePlaylistsToStorage();
+showToast(`Плейлист "${name}" переназначен на слот ${newSlot+1}`,'success');
+}
+function renamePlaylistByName(name){
+const newName=prompt('Новое имя плейлиста:',name);
+if(!newName)return;
+const trimmed=newName.trim();
+if(!trimmed||trimmed===name)return;
+if(playlists[trimmed]){showToast('Плейлист уже существует','error');return;}
+playlists[trimmed]=playlists[name];
+playlistPlayers[trimmed]=playlistPlayers[name];
+delete playlists[name];
+delete playlistPlayers[name];
+if(activePlaylistName===name)activePlaylistName=trimmed;
+renderPlaylistSelector();renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();
+savePlaylistsToStorage();
+}
+function deletePlaylistByName(name){
+if(!confirm(`Удалить плейлист "${name}"?`))return;
+const player=playlistPlayers[name];
+if(player&&player.slotIndex>=0&&engine.slots[player.slotIndex].audio)engine.stopSlot(player.slotIndex);
+purgeLocalTracks(playlists[name]);
+delete playlists[name];delete playlistPlayers[name];
+if(Object.keys(playlists).length===0){
+playlists['Мой плейлист']=[];
+playlistPlayers['Мой плейлист']={slotIndex:-1,currentIndex:-1,isPlaying:false,assignedSlot:0,playMode:'seq'};
+}
+if(activePlaylistName===name)activePlaylistName=Object.keys(playlists)[0];
+renderPlaylistSelector();renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();updatePlaylistProgress();
+savePlaylistsToStorage();
+}
+function addToActivePlaylist(name,url,type,meta={}){
+const list=getActivePlaylist();
+list.push({id:playlistNextId++,name,url,type,meta});
+savePlaylistsToStorage();
+renderPlaylist();renderPlaylistLibrary();
+showToast(`🎼 В плейлист "${activePlaylistName}": ${name}`,'success');
+}
+async function addLocalFilesToPlaylist(files){
+const player=playlistPlayers[activePlaylistName];
+if(!player){showToast('Создайте плейлист','error');return;}
+const startIdx=getActivePlaylist().length;
+let added=0,failed=0;
+for(const f of files){
+const id=playlistNextId;
+const dbId='t'+id;
+const ok=await idbPutTrack(dbId,f.name,f,f.type);
+if(ok){
+playlistNextId++;
+getActivePlaylist().push({id:id,name:f.name,url:'local:'+dbId,type:'file',local:true,dbId:dbId});
+added++;
+}else{
+playlistNextId++;
+const url=URL.createObjectURL(f);
+getActivePlaylist().push({id:id,name:f.name,url:url,type:'file'});
+added++;failed++;
+}
+}
+savePlaylistsToStorage();
+renderPlaylist();renderPlaylistLibrary();
+if(failed>0){
+showToast(`⚠ ${failed} трек(ов) не сохранятся после перезагрузки (IndexedDB недоступна)`,'error',5000);
+}else{
+showToast(`💾 Добавлено и сохранено: ${added} трек(ов)`,'success');
+}
+if(!player.isPlaying && added>0){
+playTrackAt(activePlaylistName,startIdx);
+}
+}
+function removeFromPlaylist(id){
+const list=getActivePlaylist();
+const player=playlistPlayers[activePlaylistName];
+const idx=list.findIndex(t=>t.id===id);
+if(idx<0)return;
+const t=list[idx];
+list.splice(idx,1);
+if(t&&t.local&&t.dbId){
+freeLocalUrl(t.dbId);
+idbDeleteTrack(t.dbId);
+}
+if(player){
+if(idx===player.currentIndex){
+player.currentIndex=-1;player.isPlaying=false;
+if(player.slotIndex>=0&&engine.slots[player.slotIndex].audio)engine.stopSlot(player.slotIndex);
+}else if(idx<player.currentIndex){player.currentIndex--;}
+}
+savePlaylistsToStorage();
+renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();updatePlaylistProgress();
+}
+function clearPlaylist(){
+const list=getActivePlaylist();
+if(!list.length)return;
+if(!confirm(`Очистить плейлист "${activePlaylistName}"?`))return;
+stopPlaylist(activePlaylistName);
+purgeLocalTracks(list);
+playlists[activePlaylistName]=[];
+savePlaylistsToStorage();
+renderPlaylist();renderPlaylistLibrary();updatePlaylistProgress();
+}
+function moveTrackUp(index){
+const list=getActivePlaylist();
+if(index<=0||index>=list.length)return;
+const player=playlistPlayers[activePlaylistName];
+const tmp=list[index];
+list[index]=list[index-1];
+list[index-1]=tmp;
+if(player.currentIndex===index)player.currentIndex=index-1;
+else if(player.currentIndex===index-1)player.currentIndex=index;
+savePlaylistsToStorage();
+renderPlaylist();
+renderPlaylistLibrary();
+showToast(`↑ Трек перемещён на позицию ${index}`,'info',1500);
+}
+function moveTrackDown(index){
+const list=getActivePlaylist();
+if(index<0||index>=list.length-1)return;
+const player=playlistPlayers[activePlaylistName];
+const tmp=list[index];
+list[index]=list[index+1];
+list[index+1]=tmp;
+if(player.currentIndex===index)player.currentIndex=index+1;
+else if(player.currentIndex===index+1)player.currentIndex=index;
+savePlaylistsToStorage();
+renderPlaylist();
+renderPlaylistLibrary();
+showToast(`↓ Трек перемещён на позицию ${index+2}`,'info',1500);
+}
+function moveTrackToTop(index){
+const list=getActivePlaylist();
+if(index<=0||index>=list.length)return;
+const player=playlistPlayers[activePlaylistName];
+const track=list.splice(index,1)[0];
+list.unshift(track);
+if(player.currentIndex===index)player.currentIndex=0;
+else if(player.currentIndex<index)player.currentIndex++;
+savePlaylistsToStorage();
+renderPlaylist();
+renderPlaylistLibrary();
+showToast('⤒ Трек перемещён в начало','info',1500);
+}
+function moveTrackToBottom(index){
+const list=getActivePlaylist();
+if(index<0||index>=list.length-1)return;
+const player=playlistPlayers[activePlaylistName];
+const track=list.splice(index,1)[0];
+list.push(track);
+if(player.currentIndex===index)player.currentIndex=list.length-1;
+else if(player.currentIndex>index)player.currentIndex--;
+savePlaylistsToStorage();
+renderPlaylist();
+renderPlaylistLibrary();
+showToast('⤓ Трек перемещён в конец','info',1500);
+}
+function renderPlaylist(){
+const list=$('#playlist-track-list');
+if(!list)return;
+list.innerHTML='';
+const tracks=getActivePlaylist();
+const player=playlistPlayers[activePlaylistName];
+updatePlaylistPanelHeader();
+updatePlaylistStatus();
+updatePlayModeBtn();
+if(!tracks.length){
+list.innerHTML='<div class="pl-empty-msg">Плейлист пуст.<br>Добавьте треки кнопкой "+ Файл в плейлист" или перетащите файлы в окно.<br>Локальные треки сохраняются и будут доступны после перезагрузки.</div>';
+return;
+}
+tracks.forEach((t,i)=>{
+const row=document.createElement('div');
+row.className='playlist-track-item';
+if(player&&i===player.currentIndex)row.classList.add('active');
+const icon=t.local?'💾':(t.type==='radio'?'📻':'');
+row.innerHTML=`
+<span class="pt-num">${i+1}</span>
+<span class="pt-icon">${icon}</span>
+<span class="pt-name" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>
+<button class="pt-btn pt-move" title="В начало">⤒</button>
+<button class="pt-btn pt-move" title="Вверх">↑</button>
+<button class="pt-btn pt-move" title="Вниз">↓</button>
+<button class="pt-btn pt-move" title="В конец">⤓</button>
+<button class="pt-btn pt-play" title="Воспроизвести">▶</button>
+<button class="pt-btn pt-del" title="Удалить">✕</button>`;
+const btns=row.querySelectorAll('.pt-move');
+btns[0].onclick=(e)=>{e.stopPropagation();moveTrackToTop(i);};
+btns[1].onclick=(e)=>{e.stopPropagation();moveTrackUp(i);};
+btns[2].onclick=(e)=>{e.stopPropagation();moveTrackDown(i);};
+btns[3].onclick=(e)=>{e.stopPropagation();moveTrackToBottom(i);};
+row.querySelector('.pt-play').onclick=(e)=>{e.stopPropagation();playTrackAt(activePlaylistName,i);};
+row.querySelector('.pt-del').onclick=(e)=>{e.stopPropagation();removeFromPlaylist(t.id);};
+row.onclick=()=>playTrackAt(activePlaylistName,i);
+list.appendChild(row);
+});
+}
+async function playTrackAt(name,index){
+const tracks=playlists[name];
+const player=playlistPlayers[name];
+if(!tracks||index<0||index>=tracks.length)return;
+if(!engine.ctx){showToast('Запустите аудиодвижок','error');return;}
+const slot=player.assignedSlot;
+if(slot<0||slot>=MATRIX_SIZE){
+showToast('Неверный слот плейлиста','error');
+return;
+}
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+if(pName!==name && p.slotIndex===slot && p.isPlaying){
+showToast(`Слот ${slot+1} занят плейлистом "${pName}"`,'error');
+return;
+}
+}
+if(player.slotIndex>=0 && player.slotIndex!==slot && engine.slots[player.slotIndex].audio){
+engine.stopSlot(player.slotIndex);
+}
+if(engine.slots[slot].audio){
+engine.stopSlot(slot);
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+if(p.slotIndex===slot){
+p.isPlaying=false;
+p.slotIndex=-1;
+}
+}
+}
+player.slotIndex=slot;
+const track=tracks[index];
+const audioUrl=await resolveTrackUrl(track);
+if(!audioUrl){
+showToast(`Файл "${track.name}" не найден в хранилище`,'error');
+return;
+}
+player.currentIndex=index;player.isPlaying=true;
+await engine.loadIntoSlot(slot,audioUrl,track.name,track.type,track.meta);
+await engine.playSlot(slot);
+refreshPlaylistUI();
+updatePlaylistProgress();
+if(isRoomHost)publishLocalState('play');
+}
+function togglePlaylistPlay(name){
+const player=playlistPlayers[name];
+if(!player)return;
+if(player.isPlaying){pausePlaylist(name);return;}
+const tracks=playlists[name];
+if(!tracks||!tracks.length){showToast('Плейлист пуст','info');return;}
+if(player.slotIndex>=0&&engine.slots[player.slotIndex].audio&&player.currentIndex>=0&&player.currentIndex<tracks.length){
+engine.playSlot(player.slotIndex);player.isPlaying=true;refreshPlaylistUI();if(isRoomHost)publishLocalState('play');return;
+}
+const idx=(player.currentIndex>=0&&player.currentIndex<tracks.length)?player.currentIndex:0;
+playTrackAt(name,idx);
+}
+function pausePlaylist(name){
+const player=playlistPlayers[name];
+if(!player)return;
+if(player.slotIndex>=0&&engine.slots[player.slotIndex].audio)engine.pauseSlot(player.slotIndex);
+player.isPlaying=false;refreshPlaylistUI();if(isRoomHost)publishLocalState('pause');
+}
+function stopPlaylist(name){
+const player=playlistPlayers[name];
+if(!player)return;
+if(player.slotIndex>=0&&engine.slots[player.slotIndex].audio)engine.stopSlot(player.slotIndex);
+player.isPlaying=false;player.currentIndex=-1;player.slotIndex=-1;refreshPlaylistUI();updatePlaylistProgress();if(isRoomHost)publishLocalState('stop');
+}
+function nextPlaylistTrack(name,auto=false){
+const tracks=playlists[name];
+const player=playlistPlayers[name];
+if(!tracks||!tracks.length)return;
+const mode=getPlayMode(name);
+if(mode==='one'){
+const idx=(player.currentIndex>=0&&player.currentIndex<tracks.length)?player.currentIndex:0;
+playTrackAt(name,idx);
+return;
+}
+if(mode==='shuffle'){
+if(tracks.length===1){playTrackAt(name,player.currentIndex>=0?player.currentIndex:0);return;}
+let next;
+do{next=Math.floor(Math.random()*tracks.length);}while(next===player.currentIndex);
+playTrackAt(name,next);
+return;
+}
+let next=player.currentIndex+1;
+if(next>=tracks.length){
+if(mode==='repeat'){
+next=0;
+}else{
+if(auto){stopPlaylist(name);return;}
+next=0;
+}
+}
+playTrackAt(name,next);
+}
+function prevPlaylistTrack(name){
+const tracks=playlists[name];
+const player=playlistPlayers[name];
+if(!tracks||!tracks.length)return;
+const mode=getPlayMode(name);
+if(mode==='one'){
+const idx=(player.currentIndex>=0&&player.currentIndex<tracks.length)?player.currentIndex:0;
+playTrackAt(name,idx);
+return;
+}
+if(mode==='shuffle'){
+if(tracks.length===1){playTrackAt(name,player.currentIndex>=0?player.currentIndex:0);return;}
+let prev;
+do{prev=Math.floor(Math.random()*tracks.length);}while(prev===player.currentIndex);
+playTrackAt(name,prev);
+return;
+}
+let prev=player.currentIndex-1;
+if(prev<0)prev=tracks.length-1;
+playTrackAt(name,prev);
+}
+function handleTrackEnded(slotIndex){
+for(const name in playlistPlayers){
+const p=playlistPlayers[name];
+if(p.slotIndex===slotIndex&&p.isPlaying){nextPlaylistTrack(name,true);return;}
+}
+}
+function updatePlaylistStatus(){
+const el=$('#playlist-status');
+if(!el)return;
+const tracks=getActivePlaylist();
+const player=playlistPlayers[activePlaylistName];
+const mode=getPlayMode(activePlaylistName);
+const mIcon={seq:'➔',repeat:'🔁',one:'🔂',shuffle:'🔀'}[mode]||'➔';
+if(player&&player.currentIndex>=0&&player.currentIndex<tracks.length){
+const t=tracks[player.currentIndex];
+const state=player.isPlaying?'▶':'⏸';
+el.textContent=`${mIcon} ${state} трек ${player.currentIndex+1}/${tracks.length}: ${t.name.slice(0,26)}`;
+}else{
+el.textContent=`${mIcon} Треков: ${tracks.length} • не играет`;
+}
+}
+function refreshPlaylistUI(){renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();updateRemoteUI();}
+function getPlaylistAudio(){
+const player=playlistPlayers[activePlaylistName];
+if(!player||player.slotIndex<0)return null;
+const slot=engine.slots[player.slotIndex];
+return (slot&&slot.audio)?slot.audio:null;
+}
+function updatePlaylistProgress(){
+const curEl=$('#pl-time-cur');
+const totEl=$('#pl-time-total');
+const prog=$('#playlist-progress');
+if(!prog)return;
+const player=playlistPlayers[activePlaylistName];
+const audio=getPlaylistAudio();
+if(audio&&player&&player.currentIndex>=0&&audio.duration&&isFinite(audio.duration)&&audio.duration>0){
+const cur=audio.currentTime||0;
+const dur=audio.duration;
+const pct=Math.max(0,Math.min(100,(cur/dur)*100));
+if(curEl)curEl.textContent=formatTimePL(cur);
+if(totEl)totEl.textContent=formatTimePL(dur);
+prog.disabled=false;
+prog.max=dur;
+prog.step=Math.max(0.1,dur/1000);
+if(!seeking){
+prog.value=cur;
+}
+prog.style.background=`linear-gradient(90deg, var(--sel1) 0%, var(--sel2) ${pct}%, #b8b8b8 ${pct}%, #cfcfcf 100%)`;
+prog.title='Перемотка трека';
+}else{
+if(audio&&player&&player.currentIndex>=0){
+if(curEl)curEl.textContent='LIVE';
+if(totEl)totEl.textContent='—:—';
+}else{
+if(curEl)curEl.textContent='00:00';
+if(totEl)totEl.textContent='00:00';
+}
+if(!seeking){
+prog.value=0;
+prog.max=100;
+}
+prog.disabled=true;
+prog.style.background='';
+}
+}
+function initProgressSeek(){
+const prog=$('#playlist-progress');
+if(!prog)return;
+prog.addEventListener('input',()=>{
+const audio=getPlaylistAudio();
+if(!audio||!isFinite(audio.duration)||audio.duration<=0)return;
+seeking=true;
+const v=parseFloat(prog.value);
+if(isFinite(v)&&v>=0&&v<=audio.duration){
+try{audio.currentTime=v;}catch(e){}
+const curEl=$('#pl-time-cur');
+if(curEl)curEl.textContent=formatTimePL(v);
+}
+});
+const endSeek=()=>{seeking=false;};
+prog.addEventListener('change',endSeek);
+prog.addEventListener('pointerup',endSeek);
+prog.addEventListener('pointercancel',endSeek);
+prog.addEventListener('keyup',endSeek);
+prog.addEventListener('blur',endSeek);
+}
+function renderPlaylistLibrary(){
+const grid=$('#playlists-grid');
+if(!grid)return;
+grid.innerHTML='';
+const names=Object.keys(playlists);
+if(!names.length){grid.innerHTML='<div class="fm-empty">Нет плейлистов.</div>';return;}
+names.forEach(name=>{
+const tracks=playlists[name];
+const player=playlistPlayers[name];
+const card=document.createElement('div');
+card.className='pllib-card';
+if(name===activePlaylistName)card.classList.add('active-pl');
+const status=player.isPlaying?`▶ играет`:(player.currentIndex>=0?`⏸ пауза (трек ${player.currentIndex+1})`:'остановлен');
+const currentTrack=(player.currentIndex>=0&&player.currentIndex<tracks.length)?tracks[player.currentIndex].name:'';
+const localCount=tracks.filter(t=>t.local).length;
+const modeLabel=(PLAY_MODES.find(m=>m.id===(player.playMode||'seq'))||PLAY_MODES[0]).label;
+card.innerHTML=`
+<div class="pllib-name">${escapeHtml(name)} ${name===activePlaylistName?'★':''}</div>
+<div class="pllib-slot-info">📍 Слот: ${player.assignedSlot+1} • ${escapeHtml(modeLabel)}</div>
+<div class="pllib-info">Треков: ${tracks.length}${localCount?` (💾 ${localCount})`:''} • ${status}</div>
+${currentTrack?`<div class="pllib-current">${escapeHtml(currentTrack.slice(0,40))}</div>`:''}
+<div class="pllib-actions">
+<button class="pllib-btn pl-play">${player.isPlaying?'⏸':'▶'}</button>
+<button class="pllib-btn pl-stop">⏹</button>
+<button class="pllib-btn pl-prev">⏮</button>
+<button class="pllib-btn pl-next">⏭</button>
+<button class="pllib-btn pl-slot">📍 Слот</button>
+<button class="pllib-btn pl-open">Открыть</button>
+<button class="pllib-btn pl-rename">✎</button>
+<button class="pllib-btn pl-delete">✕</button>
+</div>`;
+card.querySelector('.pl-play').onclick=()=>togglePlaylistPlay(name);
+card.querySelector('.pl-stop').onclick=()=>stopPlaylist(name);
+card.querySelector('.pl-prev').onclick=()=>prevPlaylistTrack(name);
+card.querySelector('.pl-next').onclick=()=>nextPlaylistTrack(name,false);
+card.querySelector('.pl-slot').onclick=()=>changePlaylistSlot(name);
+card.querySelector('.pl-open').onclick=()=>{switchPlaylist(name);closeModal('playlists');};
+card.querySelector('.pl-rename').onclick=()=>renamePlaylistByName(name);
+card.querySelector('.pl-delete').onclick=()=>deletePlaylistByName(name);
+grid.appendChild(card);
+});
+}
+function buildSlotRow(i){
+const slot=engine.slots[i];
+const row=document.createElement('div');
+row.className='playlist-item';
+if(slot.type==='radio')row.classList.add('radio-item');
+if(slot.isPlaying)row.classList.add('active');
+if(slot.isMuted)row.classList.add('muted-slot');
+let ownerPlaylist=null;
+for(const pName in playlistPlayers){
+if(playlistPlayers[pName].assignedSlot===i){
+ownerPlaylist=pName;
+break;
+}
+}
+const nameWrap=document.createElement('span');
+nameWrap.className='name-wrap';
+if(slot.isPlaying){const ind=document.createElement('span');ind.className='status-indicator playing';nameWrap.appendChild(ind);}
+const slotLabel=document.createElement('span');
+slotLabel.style.color=slot.isPlaying?'#fff':'#0b3ea8';slotLabel.style.fontWeight='700';slotLabel.style.marginRight='8px';
+slotLabel.textContent=`[${i+1}]`;
+nameWrap.appendChild(slotLabel);
+const title=document.createElement('span');
+if(slot.audio){
+const icon=slot.type==='radio'?'📻 ':'🎧 ';
+title.textContent=icon+(slot.track?.name||'Без имени')+(slot.nowTitle?(' — '+slot.nowTitle):'');
+}else{
+title.textContent=ownerPlaylist?`📋 ${ownerPlaylist}`:'(свободный слот)';
+title.style.color=ownerPlaylist?'#8a4a00':'#667';
+title.style.fontStyle='italic';
+}
+nameWrap.appendChild(title);
+row.appendChild(nameWrap);
+if(slot.audio){
+const playBtn=document.createElement('button');
+playBtn.className='slot-btn';playBtn.textContent=slot.isPlaying?'⏸':'▶';
+playBtn.onclick=(e)=>{
+e.stopPropagation();
+if(slot.isPlaying){
+engine.pauseSlot(i);
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+if(p.slotIndex===i && p.isPlaying){
+p.isPlaying=false;
+}
+}
+}else{
+engine.playSlot(i);
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+if(p.slotIndex===i && p.currentIndex>=0){
+p.isPlaying=true;
+}
+}
+}
+refreshPlaylistUI();
+};
+row.appendChild(playBtn);
+const stopBtn=document.createElement('button');
+stopBtn.className='slot-btn stop-btn';stopBtn.textContent='⏹';
+stopBtn.onclick=(e)=>{
+e.stopPropagation();
+engine.stopSlot(i);
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+if(p.slotIndex===i){
+p.isPlaying=false;
+p.slotIndex=-1;
+p.currentIndex=-1;
+}
+}
+refreshPlaylistUI();
+};
+row.appendChild(stopBtn);
+}else{
+const loadBtn=document.createElement('button');
+loadBtn.className='slot-btn';loadBtn.textContent='+ Файл';
+loadBtn.onclick=(e)=>{
+e.stopPropagation();
+const input=document.createElement('input');
+input.type='file';input.accept='audio/*';
+input.onchange=async(ev)=>{
+const f=ev.target.files[0];
+if(!f)return;
+const url=URL.createObjectURL(f);
+await engine.loadIntoSlot(i,url,f.name,'file');
+await engine.playSlot(i);
+};
+input.click();
+};
+row.appendChild(loadBtn);
+}
+return row;
+}
+function renderSlots(){
+const lists=[$('#playlist-list'),$('#slots-page-list')].filter(Boolean);
+lists.forEach(list=>{
+list.innerHTML='';
+for(let i=0;i<MATRIX_SIZE;i++){
+list.appendChild(buildSlotRow(i));
+}
+});
+}
+function updateTransportInfo(){
+const active=engine.getActiveCount();
+const playing=engine.getPlayingCount();
+$('#transport-info').textContent=`Активных: ${active} • Играет: ${playing}`;
+if(active>0){$('#track-info').textContent=`${playing} играет из ${active} источников`;}
+else{$('#track-info').textContent='Нет активного трека';}
+}
+function openModal(name){
+const modal=$(`#modal-${name}`);
+if(!modal)return;
+$$('.modal-overlay').forEach(m=>m.classList.remove('open'));
+modal.classList.add('open');
+if(name==='favorites')renderFavoritesGrid();
+if(name==='worldradio'){
+if(!wrInitialSearchDone){wrInitialSearchDone=true;loadWrMeta();}
+}
+if(name==='mixer'){renderMixer();renderGroups();renderAux();renderOutputs();}
+if(name==='playlists')renderPlaylistLibrary();
+if(name==='rooms')renderRooms();
+if(name==='slots')renderSlots();
+if(name==='matrix'){renderMatrix();updateOutputInfo();}
+if(name==='somafm')renderSomaFM($('#soma-search').value);
+}
+function closeModal(name){const modal=$(`#modal-${name}`);if(modal)modal.classList.remove('open');}
+$$('[data-modal]').forEach(btn=>btn.onclick=()=>openModal(btn.dataset.modal));
+$$('[data-close]').forEach(btn=>btn.onclick=()=>closeModal(btn.dataset.close));
+$$('.modal-overlay').forEach(overlay=>{overlay.onclick=(e)=>{if(e.target===overlay)overlay.classList.remove('open');};});
+$$('.modal-back').forEach(btn=>{
+btn.onclick=(e)=>{
+e.stopPropagation();
+const ov=btn.closest('.modal-overlay');
+if(ov)ov.classList.remove('open');
+};
+});
+$$('.mtabs').forEach(bar=>{
+const scope=bar.closest('.m-scope');
+if(!scope)return;
+bar.querySelectorAll('button').forEach(btn=>{
+btn.onclick=()=>{
+bar.querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===btn));
+scope.querySelectorAll(':scope > .mtab-page').forEach(p=>p.classList.toggle('active',p.dataset.mtab===btn.dataset.mtab));
+};
+});
+});
+function renderRadioCategories(){
+const box=$('#radio-categories');
+if(!box)return;
+box.innerHTML='';
+Object.keys(RADIO_CATALOG).forEach(cat=>{
+const btn=document.createElement('button');
+btn.textContent=cat;
+if(cat===currentCategory)btn.classList.add('active');
+btn.onclick=()=>{currentCategory=cat;renderRadioCategories();renderStations($('#radio-search').value);};
+box.appendChild(btn);
+});
+}
+function findStationById(id){
+for(const cat of Object.keys(RADIO_CATALOG)){
+const station=RADIO_CATALOG[cat].find(s=>s.id===id);
+if(station)return station;
+}
+return null;
+}
+function renderStations(filter=''){
+const grid=$('#stations-grid');
+if(!grid)return;
+grid.innerHTML='';
+const stations=RADIO_CATALOG[currentCategory]||[];
+const q=filter.toLowerCase();
+stations.forEach(station=>{
+if(q&&!station.name.toLowerCase().includes(q)&&!station.desc.toLowerCase().includes(q))return;
+const card=document.createElement('div');
+card.className='station-card';
+const playingSlot=engine.slots.findIndex(s=>s.track?.meta?.station?.id===station.id&&s.isPlaying);
+if(playingSlot>=0)card.classList.add('playing');
+card.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+<div class="station-name">${escapeHtml(station.name)}</div>
+<button class="fav-toggle" data-fav-id="rr-${station.id}">☆</button>
+</div>
+<div class="station-desc">${escapeHtml(station.desc)}</div>
+${playingSlot>=0?`<div class="station-status">● Слот ${playingSlot+1}</div>`:''}
+<div class="station-controls">
+${Array.from({length:MATRIX_SIZE},(_,ch)=>ch).map(ch=>{
+return `<button class="ch-btn" data-station-id="${station.id}" data-channel="${ch}">${ch+1}</button>`;
+}).join('')}
+</div>`;
+card.querySelector('.fav-toggle').onclick=(e)=>{
+e.stopPropagation();
+toggleFavorite({id:`rr-${station.id}`,type:'radio-record',name:station.name,url:station.url,desc:station.desc});
+};
+card.querySelectorAll('.ch-btn').forEach(btn=>{
+btn.onclick=async(e)=>{
+e.stopPropagation();
+const st=findStationById(btn.dataset.stationId);
+const ch=parseInt(btn.dataset.channel,10);
+if(st){
+const streamUrl=metaProxyAvailable?getStreamUrl(st.url):st.url;
+await engine.loadIntoSlot(ch,streamUrl,st.name,'radio',{station:{id:st.id,url:st.url,name:st.name}});
+await engine.playSlot(ch);
+}
+};
+});
+card.onclick=async()=>{
+const freeSlot=engine.findFreeSlot();
+if(freeSlot<0){showToast('Все слоты заняты','error');return;}
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(freeSlot,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(freeSlot);
+};
+grid.appendChild(card);
+});
+updateFavoriteButtons();
+}
+$('#radio-search').addEventListener('input',(e)=>renderStations(e.target.value.trim()));
+async function wrFetch(path){
+for(let i=0;i<WR_SERVERS.length;i++){
+const server=WR_SERVERS[(wrServerIdx+i)%WR_SERVERS.length];
+try{
+const ctrl=new AbortController();
+const t=setTimeout(()=>ctrl.abort(),6000);
+const resp=await fetch(server+path,{cache:'no-store',signal:ctrl.signal});
+clearTimeout(t);
+if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+const data=await resp.json();
+wrServerIdx=(wrServerIdx+i)%WR_SERVERS.length;
+return data;
+}catch(e){}
+}
+for(let i=0;i<WR_SERVERS.length;i++){
+const server=WR_SERVERS[(wrServerIdx+i)%WR_SERVERS.length];
+try{
+const resp=await fetch(META_PROXY_URL+'?action=fetch&url='+encodeURIComponent(server+path),{cache:'no-store'});
+if(!resp.ok)throw new Error(`HTTP ${resp.status}`);
+const data=await resp.json();
+if(data && data.error)throw new Error(data.error);
+wrServerIdx=(wrServerIdx+i)%WR_SERVERS.length;
+return data;
+}catch(e){}
+}
+throw new Error('Radio Browser API недоступен');
+}
+async function loadWrMeta(){
+if(wrMetaLoaded)return;
+try{
+const countries=await wrFetch('/json/countries?limit=250');
+const countryList=$('#wr-countries');countryList.innerHTML='';
+countries.forEach(c=>{const opt=document.createElement('option');opt.value=c.name;countryList.appendChild(opt);});
+}catch(e){}
+try{
+const tags=await wrFetch('/json/tags?limit=250');
+const tagList=$('#wr-tags');tagList.innerHTML='';
+tags.forEach(t=>{const opt=document.createElement('option');opt.value=t.name;tagList.appendChild(opt);});
+}catch(e){}
+wrMetaLoaded=true;
+}
+async function searchWorldRadio(){
+const grid=$('#wr-grid');
+if(!grid)return;
+grid.innerHTML='<div class="fm-empty">Загрузка...</div>';
+const name=$('#wr-name').value.trim();
+const country=$('#wr-country').value.trim();
+const tag=$('#wr-tag').value.trim();
+const params=new URLSearchParams();
+if(name)params.set('name',name);
+if(country)params.set('country',country);
+if(tag)params.set('tag',tag);
+params.set('limit','60');params.set('hidebroken','true');
+params.set('order','clickcount');params.set('reverse','true');
+try{
+const data=await wrFetch(`/json/stations/search?${params.toString()}`);
+grid.innerHTML='';
+if(!data.length){grid.innerHTML='<div class="fm-empty">Ничего не найдено.</div>';return;}
+data.forEach(st=>{
+const card=document.createElement('div');
+card.className='station-card';
+const playingSlot=engine.slots.findIndex(s=>s.track?.url===(st.url_resolved||st.url)&&s.isPlaying);
+if(playingSlot>=0)card.classList.add('playing');
+card.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+<div class="station-name">${escapeHtml(st.name)}</div>
+<button class="fav-toggle" data-fav-id="wr-${st.stationuuid}">☆</button>
+</div>
+<div class="station-desc">${escapeHtml(st.country||'')} ${st.tags?'• '+escapeHtml(st.tags.split(',')[0]):''}</div>
+${playingSlot>=0?`<div class="station-status">● Слот ${playingSlot+1}</div>`:''}
+<div class="station-controls">
+${Array.from({length:MATRIX_SIZE},(_,ch)=>ch).map(ch=>{
+return `<button class="ch-btn" data-station-id="${st.stationuuid}" data-channel="${ch}">${ch+1}</button>`;
+}).join('')}
+</div>`;
+card.querySelector('.fav-toggle').onclick=(e)=>{
+e.stopPropagation();
+toggleFavorite({id:`wr-${st.stationuuid}`,type:'radio-world',name:st.name,url:st.url_resolved||st.url,desc:`${st.country||''} ${st.tags||''}`});
+};
+card.querySelectorAll('.ch-btn').forEach(btn=>{
+btn.onclick=async(e)=>{
+e.stopPropagation();
+const ch=parseInt(btn.dataset.channel,10);
+const station={id:st.stationuuid,name:st.name,url:st.url_resolved||st.url};
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(ch,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(ch);
+};
+});
+card.onclick=async()=>{
+const freeSlot=engine.findFreeSlot();
+if(freeSlot<0){showToast('Все слоты заняты','error');return;}
+const station={id:st.stationuuid,name:st.name,url:st.url_resolved||st.url};
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(freeSlot,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(freeSlot);
+};
+grid.appendChild(card);
+});
+}catch(e){
+grid.innerHTML=`<div class="fm-empty">Ошибка: ${escapeHtml(e.message)}</div>`;
+}
+}
+$('#wr-search-btn').onclick=()=>searchWorldRadio();
+function renderSomaFM(filter=''){
+const grid=$('#soma-grid');
+if(!grid)return;
+grid.innerHTML='';
+const q=filter.toLowerCase();
+SOMAFM_STATIONS.forEach(station=>{
+if(q&&!station.name.toLowerCase().includes(q)&&!station.desc.toLowerCase().includes(q))return;
+const card=document.createElement('div');
+card.className='station-card';
+const playingSlot=engine.slots.findIndex(s=>s.track?.url===station.url&&s.isPlaying);
+if(playingSlot>=0)card.classList.add('playing');
+card.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+<div class="station-name">${escapeHtml(station.name)}</div>
+<button class="fav-toggle" data-fav-id="soma-${station.id}">☆</button>
+</div>
+<div class="station-desc">${escapeHtml(station.desc)}</div>
+${playingSlot>=0?`<div class="station-status">● Слот ${playingSlot+1}</div>`:''}
+<div class="station-controls">
+${Array.from({length:MATRIX_SIZE},(_,ch)=>ch).map(ch=>{
+return `<button class="ch-btn" data-station-id="${station.id}" data-channel="${ch}">${ch+1}</button>`;
+}).join('')}
+</div>`;
+card.querySelector('.fav-toggle').onclick=(e)=>{
+e.stopPropagation();
+toggleFavorite({id:`soma-${station.id}`,type:'somafm',name:station.name,url:station.url,desc:station.desc});
+};
+card.querySelectorAll('.ch-btn').forEach(btn=>{
+btn.onclick=async(e)=>{
+e.stopPropagation();
+const ch=parseInt(btn.dataset.channel,10);
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(ch,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(ch);
+};
+});
+card.onclick=async()=>{
+const freeSlot=engine.findFreeSlot();
+if(freeSlot<0){showToast('Все слоты заняты','error');return;}
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(freeSlot,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(freeSlot);
+};
+grid.appendChild(card);
+});
+updateFavoriteButtons();
+}
+$('#soma-search').addEventListener('input',(e)=>renderSomaFM(e.target.value.trim()));
+function renderFavoritesGrid(){
+const grid=$('#favorites-grid');
+if(!grid)return;
+grid.innerHTML='';
+if(!favorites.length){grid.innerHTML='<div class="fm-empty">Избранных станций пока нет.</div>';return;}
+favorites.forEach(fav=>{
+const card=document.createElement('div');
+card.className='station-card';
+const playingSlot=engine.slots.findIndex(s=>s.track?.url===fav.url&&s.isPlaying);
+if(playingSlot>=0)card.classList.add('playing');
+card.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+<div class="station-name">${escapeHtml(fav.name)}</div>
+<button class="fav-remove">✕</button>
+</div>
+<div class="station-desc">${escapeHtml(fav.desc||fav.type||'')}</div>
+${playingSlot>=0?`<div class="station-status">● Слот ${playingSlot+1}</div>`:''}
+<div class="station-controls">
+${Array.from({length:MATRIX_SIZE},(_,ch)=>ch).map(ch=>{
+return `<button class="ch-btn" data-fav-id="${fav.id}" data-channel="${ch}">${ch+1}</button>`;
+}).join('')}
+</div>`;
+card.querySelector('.fav-remove').onclick=(e)=>{e.stopPropagation();toggleFavorite(fav);};
+card.querySelectorAll('.ch-btn').forEach(btn=>{
+btn.onclick=async(e)=>{
+e.stopPropagation();
+const ch=parseInt(btn.dataset.channel,10);
+const station={id:fav.id,name:fav.name,url:fav.url};
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(ch,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(ch);
+};
+});
+card.onclick=async()=>{
+const freeSlot=engine.findFreeSlot();
+if(freeSlot<0){showToast('Все слоты заняты','error');return;}
+const station={id:fav.id,name:fav.name,url:fav.url};
+const streamUrl=metaProxyAvailable?getStreamUrl(station.url):station.url;
+await engine.loadIntoSlot(freeSlot,streamUrl,station.name,'radio',{station:{id:station.id,url:station.url,name:station.name}});
+await engine.playSlot(freeSlot);
+};
+grid.appendChild(card);
+});
+}
+/* ===== МАТРИЦА 20×19 ===== */
+function renderMatrix(){
+const grid=$('#matrix-grid');
+if(!grid)return;
+grid.innerHTML='';
+const mob=window.innerWidth<=720;
+const corner=document.createElement('div');
+corner.className='matrix-label';corner.textContent=mob?'':'IN\\OUT';
+grid.appendChild(corner);
+for(let o=0;o<OUT_COUNT;o++){
+const label=document.createElement('div');
+label.className='matrix-label';
+label.textContent=o<MATRIX_SIZE?(mob?String(o+1):(engine.useDiscreteOut?`OUT${o+1}`:`O${o+1}`)):VOUT[o-MATRIX_SIZE].name;
+grid.appendChild(label);
+}
+for(let i=0;i<IN_COUNT;i++){
+const rowLabel=document.createElement('div');
+rowLabel.className='matrix-label';
+const slot=engine.slots[i];
+const name=i<MATRIX_SIZE?(slot.audio?slot.track?.name?.slice(0,8)||'?':'—'):VIRT_IN[i-MATRIX_SIZE].name;
+rowLabel.textContent=mob?`${i+1}`:`${i+1}: ${name}`;
+grid.appendChild(rowLabel);
+for(let o=0;o<OUT_COUNT;o++){
+const cell=document.createElement('div');
+cell.className='matrix-cell';
+if(engine.matrix[i][o])cell.classList.add('active');
+cell.onclick=()=>engine.toggleMatrix(i,o);
+grid.appendChild(cell);
+}
+}
+}
+$$('[data-matrix]').forEach(btn=>{
+btn.onclick=()=>{
+const action=btn.dataset.matrix;
+if(action==='undo')engine.undoMatrix();
+else engine.setMatrixPreset(action);
+};
+});
+$('#btn-monitor-stereo').onclick=()=>{
+engine.defaultMonitorStereo=!engine.defaultMonitorStereo;
+$('#btn-monitor-stereo').classList.toggle('active',engine.defaultMonitorStereo);
+if(engine.defaultMonitorStereo&&engine.ctx){
+for(let i=0;i<MATRIX_SIZE;i++){if(engine.slots[i].audio){engine.matrix[i][0]=true;engine.matrix[i][1]=true;}}
+engine.applyMatrix();renderMatrix();renderMixer();
+}
+showToast(engine.defaultMonitorStereo?'Авто L/R: вкл':'Авто L/R: выкл','info');
+};
+/* ===== КАСТОМНЫЙ ВЕРТИКАЛЬНЫЙ ФЕЙДЕР (iOS + десктоп) ===== */
+function buildVFader(ch){
+const wrap=document.createElement('div');
+wrap.className='ch-fader-vertical-wrap';
+const thumb=document.createElement('div');
+thumb.className='ch-fader-thumb';
+wrap.appendChild(thumb);
+const slot=engine.slots[ch];
+function pos(pct){
+pct=Math.max(0,Math.min(100,pct));
+const H=wrap.clientHeight||120;
+thumb.style.bottom=(pct*(H-18)/100)+'px';
+}
+function setFromPct(pct){
+const v=(pct*1.5)/100;
+engine.setSlotVolume(ch,v);
+pos(pct);
+}
+setTimeout(()=>pos(slot.slotVolume/1.5*100),0);
+let drag=false;
+const move=(y)=>{
+const r=wrap.getBoundingClientRect();
+const pct=Math.max(0,Math.min(100,((r.bottom-y)/(r.height-18))*100));
+setFromPct(pct);
+};
+wrap.addEventListener('touchstart',(e)=>{e.preventDefault();drag=true;move(e.touches[0].clientY);},{passive:false});
+wrap.addEventListener('touchmove',(e)=>{e.preventDefault();if(drag)move(e.touches[0].clientY);},{passive:false});
+wrap.addEventListener('touchend',()=>{drag=false;});
+wrap.addEventListener('mousedown',(e)=>{
+drag=true;move(e.clientY);
+const mm=(ev)=>{if(drag)move(ev.clientY);};
+const mu=()=>{drag=false;document.removeEventListener('mousemove',mm);document.removeEventListener('mouseup',mu);};
+document.addEventListener('mousemove',mm);
+document.addEventListener('mouseup',mu);
+});
+return wrap;
+}
+/* ===== МИКСЕР: 20 каналов ===== */
+function renderMixer(){
+const box=$('#mixer-channels');
+if(!box)return;
+box.innerHTML='';
+for(let ch=0;ch<IN_COUNT;ch++){
+const channel=document.createElement('div');
+channel.className='mixer-channel';
+const slot=engine.slots[ch];
+if(slot.isMuted)channel.classList.add('muted');
+const hasRoute=engine.hasRoute(ch);
+if(!hasRoute&&slot.kind==='phys')channel.classList.add('no-route');
+const label=document.createElement('div');
+label.className='ch-label';label.textContent=ch<MATRIX_SIZE?`CH${ch+1}`:VIRT_IN[ch-MATRIX_SIZE].name;
+const meter=document.createElement('div');
+meter.className='meter-bar';
+const fill=document.createElement('div');
+fill.className='meter-fill';fill.id=`meter-${ch}`;fill.style.height='0%';
+meter.appendChild(fill);
+const controls=document.createElement('div');
+controls.className='ch-controls';
+const controlLabel=document.createElement('div');
+controlLabel.className='ch-control-label';controlLabel.textContent='VOLUME';
+controls.appendChild(controlLabel);
+controls.appendChild(buildVFader(ch));
+if(slot.kind==='virt'){
+const vt=VIRT_IN[ch-MATRIX_SIZE].id;
+const vbtn=document.createElement('button');
+vbtn.className='ch-mute-btn';
+vbtn.textContent=slot.active?'⏹ Стоп':(vt==='capture'?'▶ Tab/YouTube':vt==='mic'?'🎤 Микрофон':vt==='loop'?'⚠ Loop':'〜 Тон');
+vbtn.title=vt==='capture'?'Захват вкладки/окна/экрана (getDisplayMedia). Захватывайте ВКЛАДКУ со звуком и глушите её собственный звук — иначе эхо/самозахват.':vt==='mic'?'Микрофон (getUserMedia)':vt==='loop'?'LOOP: мастер-шина → вход. Осторожно: самовозбуждение!':'Тест-тон 440Hz';
+vbtn.onclick=(e)=>{e.stopPropagation();if(slot.active)virtStop(ch);else virtStart(ch,vt);};
+controls.appendChild(vbtn);
+}
+const muteBtn=document.createElement('button');
+muteBtn.className='ch-mute-btn'+(slot.isMuted?' active':'');
+muteBtn.textContent=slot.isMuted?'MUTED':'MUTE';
+muteBtn.onclick=(e)=>{
+e.stopPropagation();
+engine.setMute(ch,!slot.isMuted);
+};
+const sourceLabel=document.createElement('div');
+sourceLabel.className='ch-source';
+sourceLabel.textContent=slot.nowTitle?slot.nowTitle.slice(0,14):(slot.audio?(slot.track?.name?.slice(0,14)||'?'):(slot.active?VIRT_IN[ch-MATRIX_SIZE].name:'(пусто)'));
+channel.appendChild(label);
+channel.appendChild(meter);
+channel.appendChild(controls);
+channel.appendChild(muteBtn);
+channel.appendChild(sourceLabel);
+box.appendChild(channel);
+}
+}
+/* ===== ВКЛАДКИ МИКШЕРА ===== */
+$$('.mix-tab').forEach(b=>b.onclick=()=>{
+$$('.mix-tab').forEach(x=>x.classList.toggle('active',x===b));
+$$('.mix-pane').forEach(p=>p.classList.toggle('active',p.id==='mixpane-'+b.dataset.mixtab));
+if(b.dataset.mixtab==='grp')renderGroups();
+if(b.dataset.mixtab==='aux')renderAux();
+if(b.dataset.mixtab==='out')renderOutputs();
+});
+function renderGroups(){
+const wrap=$('#groups-wrap');if(!wrap)return;wrap.innerHTML='';
+engine.groupBuses.forEach((G,g)=>{
+const row=document.createElement('div');row.className='grp-row';
+row.innerHTML=`<div class="grp-head"><b style="width:60px;">GRP ${'ABCD'[g]}</b>
+<input type="range" min="0" max="150" value="${Math.round(G.level*100)}" class="grp-fader" style="flex:1;">
+<button class="ch-mute-btn${G.muted?' active':''}" style="width:60px;">${G.muted?'MUTED':'ON'}</button></div>
+<div class="grp-chips">${Array.from({length:IN_COUNT},(_,ch)=>`<button class="gchip${engine.groupMatrix[ch][g]?' on':''}" data-ch="${ch}">${ch+1}</button>`).join('')}</div>`;
+row.querySelector('.grp-fader').oninput=e=>engine.setGroupLevel(g,parseInt(e.target.value,10)/100);
+row.querySelector('.ch-mute-btn').onclick=e=>{e.stopPropagation();engine.setGroupMute(g,!G.muted);renderGroups();};
+row.querySelectorAll('.gchip').forEach(chp=>chp.onclick=()=>{const ch=+chp.dataset.ch;engine.setGroupAssign(ch,g,!engine.groupMatrix[ch][g]);chp.classList.toggle('on',engine.groupMatrix[ch][g]);});
+wrap.appendChild(row);
+});
+}
+function renderAux(){
+const wrap=$('#aux-wrap');if(!wrap)return;wrap.innerHTML='';
+const head=document.createElement('div');head.className='aux-row';
+head.innerHTML=`<span class="nm"><b>Returns:</b></span>`;
+engine.auxBuses.forEach((A,a)=>{
+const lab=document.createElement('span');lab.textContent=(a===0)?'AUX1 Rev':'AUX2 Dly';
+const sl=document.createElement('input');sl.type='range';sl.min=0;sl.max=100;sl.value=Math.round(A.level*100);
+sl.oninput=e=>engine.setAuxReturn(a,parseInt(e.target.value,10)/100);
+head.appendChild(lab);head.appendChild(sl);
+});
+wrap.appendChild(head);
+for(let ch=0;ch<IN_COUNT;ch++){
+const row=document.createElement('div');row.className='aux-row';
+const nm=ch<MATRIX_SIZE?('CH'+(ch+1)):VIRT_IN[ch-MATRIX_SIZE].name;
+row.innerHTML=`<span class="nm">${nm}</span>`;
+[0,1].forEach(a=>{
+const sl=document.createElement('input');sl.type='range';sl.min=0;sl.max=100;sl.value=Math.round((engine.auxMatrix[ch][a]||0)*100);
+sl.oninput=e=>engine.setAuxSend(ch,a,parseInt(e.target.value,10)/100);
+row.appendChild(sl);
+});
+wrap.appendChild(row);
+}
+}
+function renderOutputs(){
+const wrap=$('#outputs-wrap');if(!wrap)return;wrap.innerHTML='';
+for(let o=0;o<OUT_COUNT;o++){
+const row=document.createElement('div');row.className='out-strip';
+const nm=o<MATRIX_SIZE?('OUT'+(o+1)):VOUT[o-MATRIX_SIZE].name;
+row.innerHTML=`<span class="nm" style="width:60px;"><b>${nm}</b></span><span class="out-meter"><i id="outm-${o}"></i></span>`;
+const sl=document.createElement('input');sl.type='range';sl.min=0;sl.max=150;sl.value=Math.round((engine.outGains[o]?engine.outGains[o].gain.value:1)*100);
+sl.oninput=e=>engine.setOutputGain(o,parseInt(e.target.value,10)/100);
+row.appendChild(sl);
+if(o===MATRIX_SIZE){
+const rb=document.createElement('span');rb.className='rec-btns';
+rb.innerHTML=`<button class="pllib-btn" id="rec-toggle">${mediaRecorder?'⏹ Стоп':'⏺ REC'}</button>`;
+row.appendChild(rb);
+rb.querySelector('#rec-toggle').onclick=()=>{if(mediaRecorder)recStop();else recStart();};
+}
+wrap.appendChild(row);
+}
+}
+function updateOutMeters(){
+if(!engine.outAnalysers)return;
+for(let o=0;o<OUT_COUNT;o++){
+const el=document.getElementById('outm-'+o);if(!el)continue;
+const a=engine.outAnalysers[o];const d=new Uint8Array(a.frequencyBinCount);a.getByteFrequencyData(d);
+let s=0;for(let i=0;i<d.length;i++)s+=d[i];
+const lvl=Math.min(100,(s/d.length)/255*140);
+el.style.height=lvl+'%';
+}
+}
+function updateOutputInfo(){
+const el=$('#output-info');
+if(!el)return;
+if(!engine.ctx){el.textContent='Аудио не запущено.';el.classList.add('warn');return;}
+const dest=engine.ctx.destination;
+const max=dest.maxChannelCount||0;
+if(engine.useDiscreteOut){
+el.textContent=`Физ. выходов: ${max} | Подключено: ${engine.physicalOutputs} | Вирт: REC/SUB/MONO | OUT1=L, OUT2=R`;
+el.classList.toggle('warn',engine.physicalOutputs<MATRIX_SIZE);
+}else{
+el.textContent=`Режим: моно/стерео-микс | Физ. выходов: ${max} | Вирт: REC/SUB/MONO`;
+el.classList.add('warn');
+}
+}
+function updateNowPlayingDisplay(){
+const el=$('#np-text');
+const display=$('#now-playing-display');
+if(!el||!display)return;
+const sources=[];
+engine.slots.forEach((slot,i)=>{if(slot.isPlaying&&!slot.isMuted)sources.push(`[${i+1}] ${slot.track?.name||'?'}${slot.nowTitle?' — '+slot.nowTitle:''}`);});
+if(sources.length){setMarquee(el,sources.join(' • '));display.classList.add('active');}
+else{setMarquee(el,'Нет источника');display.classList.remove('active');}
+}
+function formatTimePL(s){
+if(!isFinite(s))return '00:00';
+const m=Math.floor(s/60),sec=Math.floor(s%60);
+return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+function updateMeters(){
+if(!engine.channelAnalysers||!engine.channelAnalysers.length)return;
+for(let ch=0;ch<IN_COUNT;ch++){
+const el=$(`#meter-${ch}`);
+if(!el)continue;
+const analyser=engine.channelAnalysers[ch];
+const slot=engine.slots[ch];
+const hasRoute=engine.hasRoute(ch);
+if(!slot.audio&&!slot.active){el.style.height='0%';continue;}
+if(!slot.isPlaying||slot.isMuted||!hasRoute){el.style.height='0%';continue;}
+const freqData=new Uint8Array(analyser.frequencyBinCount);
+analyser.getByteFrequencyData(freqData);
+let sum=0;
+for(let i=0;i<freqData.length;i++)sum+=freqData[i];
+const avg=sum/freqData.length;
+const effectiveLevel=avg*slot.slotVolume;
+const level=Math.min(100,effectiveLevel/255*140);
+el.style.height=`${level}%`;
+}
+}
+function drawVisualization(freqData,waveData){
+const canvas=$('#main-viz-canvas');
+if(!canvas||$('#main-viz-panel').classList.contains('hidden'))return;
+const ctx=canvas.getContext('2d');
+const w=canvas.width=canvas.clientWidth;
+const h=canvas.height=canvas.clientHeight;
+ctx.clearRect(0,0,w,h);
+if(engine.vizMode==='bars'){
+const barCount=64;
+const step=Math.floor(freqData.length/barCount);
+const barWidth=w/barCount;
+for(let i=0;i<barCount;i++){
+const value=freqData[i*step];
+const barHeight=(value/255)*h;
+const hue=200+(value/255)*40;
+ctx.fillStyle=`hsl(${hue},100%,${28+value/255*42}%)`;
+ctx.fillRect(i*barWidth,h-barHeight,barWidth-2,barHeight);
+}
+}else if(engine.vizMode==='wave'){
+engine.analyser.getByteTimeDomainData(waveData);
+ctx.beginPath();ctx.strokeStyle='#7fb2ff';ctx.lineWidth=2;
+const step=w/waveData.length;
+for(let i=0;i<waveData.length;i++){
+const v=waveData[i]/128;
+const y=(v*h)/2;
+const x=i*step;
+if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+ctx.stroke();
+}else if(engine.vizMode==='spectrum'){
+ctx.beginPath();ctx.strokeStyle='#4d8dff';ctx.lineWidth=2;
+const step=w/freqData.length;
+for(let i=0;i<freqData.length;i++){
+const x=i*step;
+const y=h-(freqData[i]/255)*h;
+if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+}
+ctx.stroke();
+}
+}
+function resizeMainViz(){
+const canvas=$('#main-viz-canvas');
+if(!canvas)return;
+canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;
+}
+window.addEventListener('resize',resizeMainViz);
+$('#btn-toggle-viz').onclick=()=>{
+const panel=$('#main-viz-panel');
+const btn=$('#btn-toggle-viz');
+if(panel.classList.contains('hidden')){panel.classList.remove('hidden');btn.textContent='Скрыть';resizeMainViz();}
+else{panel.classList.add('hidden');btn.textContent='Показать';}
+};
+$$('.viz-controls button[data-viz]').forEach(btn=>{
+btn.onclick=()=>{
+$$('.viz-controls button[data-viz]').forEach(x=>x.classList.remove('active'));
+btn.classList.add('active');
+engine.vizMode=btn.dataset.viz;
+};
+});
+window.__iconUrl=(function(){
+const iconSvg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#0a102a"/><g fill="#00ff66"><rect x="96" y="256" width="48" height="160" rx="12"/><rect x="176" y="176" width="48" height="240" rx="12"/><rect x="256" y="112" width="48" height="304" rx="12"/><rect x="336" y="208" width="48" height="208" rx="12"/></g><circle cx="392" cy="120" r="40" fill="#3a74d8"/></svg>';
+return 'data:image/svg+xml,'+encodeURIComponent(iconSvg);
+})();
+(function(){
+try{
+const manifest={
+name:'Mix Player v.1 — Multi-Room',
+short_name:'MixPlayer',
+description:'Мультирум-плеер: матрица 20×19, микшер, радио, плейлисты, пульт',
+start_url:location.href.split('#')[0],
+scope:new URL('.',location.href).href,
+display:'standalone',
+orientation:'any',
+background_color:'#050705',
+theme_color:'#0b3ea8',
+icons:[{src:window.__iconUrl,sizes:'any',type:'image/svg+xml',purpose:'any'}]
+};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+const link=document.createElement('link');
+link.rel='manifest';
+link.href=URL.createObjectURL(blob);
+document.head.appendChild(link);
+const ai=document.createElement('link');
+ai.rel='apple-touch-icon';
+ai.href=window.__iconUrl;
+document.head.appendChild(ai);
+}catch(e){}
+})();
+if('serviceWorker' in navigator){
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('sw.js').catch(()=>{});
+});
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+e.preventDefault();
+deferredPrompt=e;
+const b=$('#btn-install');
+if(b)b.style.display='inline-flex';
+});
+window.addEventListener('appinstalled',()=>showToast('✓ Приложение установлено','success'));
+const btnInstall=$('#btn-install');
+if(btnInstall)btnInstall.onclick=async()=>{
+if(!deferredPrompt)return;
+deferredPrompt.prompt();
+deferredPrompt=null;
+btnInstall.style.display='none';
+};
+const btnFull=$('#btn-fullscreen');
+if(btnFull)btnFull.onclick=()=>{
+if(document.fullscreenElement){
+if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+}else{
+if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
+}
+};
+let wakeLock=null;
+async function requestWakeLock(){
+try{
+if('wakeLock' in navigator && engine.getPlayingCount()>0 && !wakeLock){
+wakeLock=await navigator.wakeLock.request('screen');
+}
+}catch(e){}
+}
+function releaseWakeLock(){
+try{
+if(wakeLock){wakeLock.release();wakeLock=null;}
+}catch(e){}
+}
+function syncWakeLock(){
+if(engine.getPlayingCount()>0)requestWakeLock();else releaseWakeLock();
+}
+document.addEventListener('visibilitychange',()=>{
+if(document.visibilityState==='visible')requestWakeLock();
+});
+function updateMediaSession(){
+if(!('mediaSession' in navigator))return;
+const pi=primaryPlayingSlot();
+const playing=pi>=0?engine.slots[pi]:null;
+try{
+let title='Mix Player',artist='Mix Player v.1';
+if(playing){
+const stName=(playing.track&&playing.track.meta&&playing.track.meta.station&&playing.track.meta.station.name)||playing.track?.name||'Mix Player';
+if(playing.nowTitle){
+const parts=playing.nowTitle.split(' — ');
+if(parts.length>=2){artist=parts[0].trim();title=parts.slice(1).join(' — ').trim();}
+else{title=playing.nowTitle;artist=stName;}
+}else{title=stName;artist='Radio';}
+}
+navigator.mediaSession.metadata=new MediaMetadata({
+title:title,artist:artist,album:'Mix Player v.1',
+artwork:[{src:window.__iconUrl,sizes:'any',type:'image/svg+xml'}]
+});
+navigator.mediaSession.playbackState=playing?'playing':'paused';
+}catch(e){}
+}
+if('mediaSession' in navigator){
+try{
+navigator.mediaSession.setActionHandler('play',()=>{if(getActivePlaylist().length)togglePlaylistPlay(activePlaylistName);else engine.playAll();});
+navigator.mediaSession.setActionHandler('pause',()=>{pausePlaylist(activePlaylistName);engine.pauseAll();});
+navigator.mediaSession.setActionHandler('stop',()=>{stopPlaylist(activePlaylistName);engine.stopAll();});
+navigator.mediaSession.setActionHandler('previoustrack',()=>prevPlaylistTrack(activePlaylistName));
+navigator.mediaSession.setActionHandler('nexttrack',()=>nextPlaylistTrack(activePlaylistName,false));
+navigator.mediaSession.setActionHandler('seekto',(d)=>{
+const a=getPlaylistAudio();
+if(a&&isFinite(a.duration)&&d.seekTime!=null)a.currentTime=d.seekTime;
+});
+}catch(e){}
+}
+function setPage(page){
+document.body.classList.toggle('page-editor',page==='editor');
+document.body.classList.toggle('page-slots',page==='slots');
+$$('.mtab').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+}
+$$('.mtab').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+function setPlaylistEditorCollapsed(collapsed){
+const area=$('#content-area');
+if(!area)return;
+area.classList.toggle('collapsed',collapsed);
+const arrow=$('#pl-toggle-arrow');
+if(arrow)arrow.textContent=collapsed?'▶':'▼';
+}
+$('#playlist-editor-header').addEventListener('click',(e)=>{
+if(window.innerWidth<=720)return;
+if(e.target.closest('.playlist-header-controls'))return;
+const area=$('#content-area');
+setPlaylistEditorCollapsed(!area.classList.contains('collapsed'));
+});
+$('#remote-header').addEventListener('click',(e)=>{
+if(e.target.closest('#remote-exit'))return;
+const ov=$('#remote-overlay');
+ov.classList.toggle('collapsed');
+$('#remote-collapse').textContent=ov.classList.contains('collapsed')?'▲':'▼';
+});
+$('#pl-prev').onclick=()=>prevPlaylistTrack(activePlaylistName);
+$('#pl-play').onclick=()=>togglePlaylistPlay(activePlaylistName);
+$('#pl-pause').onclick=()=>pausePlaylist(activePlaylistName);
+$('#pl-stop').onclick=()=>stopPlaylist(activePlaylistName);
+$('#pl-next').onclick=()=>nextPlaylistTrack(activePlaylistName,false);
+$('#pl-mode-btn').onclick=()=>cyclePlayMode();
+$('#lib-new-pl').onclick=createPlaylist;
+$('#room-add').onclick=()=>createRoom();
+$('#scene-save').onclick=()=>saveScene();
+$('#btn-remote').onclick=()=>toggleRemoteMode();
+$('#remote-exit').onclick=()=>toggleRemoteMode();
+$('#remote-play').onclick=()=>{remoteAct('play',null);};
+$('#remote-pause').onclick=()=>{remoteAct('pause',null);};
+$('#remote-stop').onclick=()=>{remoteAct('stop',null);};
+$('#remote-prev').onclick=()=>{remoteAct('prev',null);};
+$('#remote-next').onclick=()=>{remoteAct('next',null);};
+$('#remote-mute').onclick=()=>{
+$('#btn-mute').click();
+updateRemoteUI();
+};
+$('#remote-master-vol').oninput=(e)=>{
+const v=parseInt(e.target.value,10)/100;
+engine.setMasterVolume(v);
+$('#master-vol').value=Math.round(v*100);
+$('#btn-mute').textContent=v>0?'🔊':'';
+if(isRoomHost)publishLocalState('volume');
+};
+$('#room-code-join').onclick=()=>{
+const code=$('#room-code-input').value.trim().toUpperCase();
+if(code.length!==4){showToast('Введите 4 символа','error');return;}
+joinRoom(code,true);
+};
+$('#room-code-new').onclick=()=>{
+const code=generateRoomCode();
+$('#room-code-input').value=code;
+joinRoom(code,false);
+};
+$('#room-code-leave').onclick=()=>leaveRoom();
+$('#room-code-input').addEventListener('input',(e)=>{
+e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+});
+$('#btn-stop').onclick=()=>{
+engine.stopAll();
+for(const pName in playlistPlayers){
+const p=playlistPlayers[pName];
+p.isPlaying=false;
+p.slotIndex=-1;
+p.currentIndex=-1;
+}
+refreshPlaylistUI();
+updatePlaylistProgress();
+if(isRoomHost)publishLocalState('stop');
+};
+$('#btn-mute').onclick=()=>{
+const btn=$('#btn-mute');
+if(engine.masterVolume>0){engine.lastVolume=engine.masterVolume;engine.setMasterVolume(0);$('#master-vol').value=0;btn.textContent='🔇';}
+else{const restore=engine.lastVolume||0.8;engine.setMasterVolume(restore);$('#master-vol').value=Math.round(restore*100);btn.textContent='🔊';}
+if(isRoomHost)publishLocalState('mute');
+};
+$('#master-vol').oninput=(e)=>{
+const v=parseInt(e.target.value,10)/100;
+engine.setMasterVolume(v);
+$('#btn-mute').textContent=v>0?'🔊':'';
+if(isRoomHost)publishLocalState('volume');
+};
+$('#btn-start-audio').onclick=()=>engine.init();
+$('#btn-add-file').onclick=()=>{
+const player=playlistPlayers[activePlaylistName];
+if(!player){
+showToast('Создайте плейлист','error');
+return;
+}
+const input=document.createElement('input');
+input.type='file';input.accept='audio/*';input.multiple=true;
+input.onchange=async(e)=>{
+const files=Array.from(e.target.files||[]);
+if(!files.length)return;
+await addLocalFilesToPlaylist(files);
+};
+input.click();
+};
+document.addEventListener('dragover',(e)=>{e.preventDefault();document.body.classList.add('drag-over');});
+document.addEventListener('dragleave',(e)=>{if(e.relatedTarget===null)document.body.classList.remove('drag-over');});
+document.addEventListener('drop',async(e)=>{
+e.preventDefault();document.body.classList.remove('drag-over');
+const player=playlistPlayers[activePlaylistName];
+if(!player)return;
+const files=Array.from(e.dataTransfer.files||[]);
+const audioFiles=files.filter(f=>f.type.startsWith('audio/'));
+if(!audioFiles.length)return;
+await addLocalFilesToPlaylist(audioFiles);
+});
+document.onkeydown=(e)=>{
+if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON'||e.target.tagName==='SELECT')return;
+if(e.code==='Space'){
+e.preventDefault();
+if(!engine.ctx)return;
+if(getActivePlaylist().length&&!e.shiftKey)togglePlaylistPlay(activePlaylistName);
+else if(engine.getPlayingCount()>0)engine.pauseAll();
+else engine.playAll();
+}
+if(e.code==='KeyS')engine.stopAll();
+if(e.code==='KeyM')$('#btn-mute').click();
+if(e.code==='Escape')$$('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+if(e.code==='ArrowUp'&&!e.shiftKey){e.preventDefault();const v=Math.min(100,parseInt($('#master-vol').value,10)+5);$('#master-vol').value=v;engine.setMasterVolume(v/100);}
+if(e.code==='ArrowDown'&&!e.shiftKey){e.preventDefault();const v=Math.max(0,parseInt($('#master-vol').value,10)-5);$('#master-vol').value=v;engine.setMasterVolume(v/100);}
+};
+function saveSession(){
+try{
+const session={
+slots:engine.slots.map((slot,idx)=>{
+if(idx>=MATRIX_SIZE)return null;
+if(!slot.audio||!slot.track)return null;
+if(slot.track.url.startsWith('blob:'))return null;
+return{
+url:slot.track.url,
+name:slot.track.name,
+type:slot.type,
+meta:slot.track.meta||{},
+currentTime:slot.audio.currentTime||0,
+isPlaying:slot.isPlaying,
+slotVolume:slot.slotVolume,
+isMuted:slot.isMuted
+};
+}),
+matrix:engine.matrix,
+groupMatrix:engine.groupMatrix,
+auxMatrix:engine.auxMatrix,
+masterVolume:engine.masterVolume
+};
+localStorage.setItem(SESSION_KEY,JSON.stringify(session));
+}catch(e){}
+}
+async function restoreSession(){
+try{
+const raw=localStorage.getItem(SESSION_KEY);
+if(!raw)return;
+const session=JSON.parse(raw);
+if(!session.slots)return;
+showToast('Восстановление сессии...','info');
+if(session.matrix&&session.matrix.length===IN_COUNT){
+engine.matrix=session.matrix;
+}
+if(session.groupMatrix&&session.groupMatrix.length===IN_COUNT&&engine.ctx){
+engine.groupMatrix=session.groupMatrix;
+for(let ch=0;ch<IN_COUNT;ch++)for(let g=0;g<4;g++){if(engine.groupMatrix[ch][g])engine.channels[ch].connect(engine.groupBuses[g].gain);}
+}
+if(session.auxMatrix&&session.auxMatrix.length===IN_COUNT&&engine.ctx){
+engine.auxMatrix=session.auxMatrix;
+for(let ch=0;ch<IN_COUNT;ch++)for(let a=0;a<2;a++)engine.auxBuses[a].sends[ch].gain.value=engine.auxMatrix[ch][a]||0;
+}
+if(engine.ctx){engine.applyMatrix();renderMatrix();}
+if(session.masterVolume!==undefined){
+engine.setMasterVolume(session.masterVolume);
+$('#master-vol').value=Math.round(session.masterVolume*100);
+}
+let restoredCount=0;
+for(let i=0;i<MATRIX_SIZE;i++){
+const slotData=session.slots[i];
+if(!slotData)continue;
+try{
+await engine.loadIntoSlot(i,slotData.url,slotData.name,slotData.type,slotData.meta);
+if(slotData.currentTime&&engine.slots[i].audio){
+engine.slots[i].audio.currentTime=slotData.currentTime;
+}
+if(slotData.slotVolume!==undefined){
+engine.setSlotVolume(i,slotData.slotVolume);
+}
+if(slotData.isMuted!==undefined){
+engine.setMute(i,slotData.isMuted);
+}
+if(slotData.isPlaying&&engine.slots[i].audio){
+await engine.playSlot(i);
+}
+restoredCount++;
+}catch(e){}
+}
+if(restoredCount>0)showToast(`✓ Восстановлено ${restoredCount} источников`,'success');
+}catch(e){}
+}
+setInterval(saveSession,5000);
+window.addEventListener('beforeunload',saveSession);
+loadFavorites();
+loadPlaylistsFromStorage();
+loadRoomsConfig();
+renderRadioCategories();
+renderStations();
+renderMatrix();
+renderSlots();
+renderPlaylistSelector();
+renderPlaylist();
+renderPlaylistLibrary();
+updatePlaylistStatus();
+updatePlaylistPanelHeader();
+updatePlayModeBtn();
+updatePlaylistProgress();
+initProgressSeek();
+updateTransportInfo();
+updateOutputInfo();
+updateNowPlayingDisplay();
+checkProxyAvailability();
+try{
+const savedCode=localStorage.getItem(ROOM_CODE_KEY);
+if(savedCode && savedCode.length===4){
+joinRoom(savedCode,true);
+isRoomHost=false;
+hostDeviceId=null;
+setSyncStatus('ожидание хоста...',false);
+$('#room-code-status').textContent=`Комната: ${savedCode} (клиент)`;
+}else{
+setSyncStatus('не активна',false);
+$('#room-code-status').textContent='Не в комнате';
+}
+}catch(e){}
+/* === ЦИКЛ СИНХРОНИЗАЦИИ: опрос + heartbeat-публикация раз в 4 с === */
+setInterval(()=>{
+pollRemoteState();
+if(roomCode && Date.now()-lastPublishTs>4000)publishLocalState('beat');
+if($('#remote-overlay').classList.contains('active')){
+updateRemoteUI();
+}
+updateMediaSession();
+syncWakeLock();
+},SYNC_INTERVAL);
+const originalInit=engine.init.bind(engine);
+engine.init=async function(){
+await originalInit();
+setTimeout(async()=>{
+await restoreSession();
+applyAllRooms();
+updateRemoteUI();
+pollAllMeta();
+},1000);
+};
+setInterval(()=>{
+updateNowPlayingDisplay();
+updateTransportInfo();
+updatePlaylistProgress();
+checkRoomSleepTimers();
+renderSlots();
+if($('#modal-playlists').classList.contains('open'))renderPlaylistLibrary();
+if($('#modal-mixer').classList.contains('open'))renderMixer();
+updateRemoteUI();
+},1000);
+/* === МОБИЛЬНАЯ ЛЕНТА: подсветка активной страницы + пульт === */
+(function(){
+const syncRail=()=>{
+let openName=null;
+$$('.modal-overlay.open').forEach(m=>{openName=m.id.replace('modal-','');});
+$$('#mobile-rail [data-modal]').forEach(b=>b.classList.toggle('active',b.dataset.modal===openName));
+const rb=$('#rail-remote');
+if(rb)rb.classList.toggle('active',$('#remote-overlay').classList.contains('active'));
+};
+const railObserver=new MutationObserver(syncRail);
+$$('.modal-overlay').forEach(m=>railObserver.observe(m,{attributes:true,attributeFilter:['class']}));
+})();
+const railRemote=$('#rail-remote');
+if(railRemote)railRemote.onclick=()=>toggleRemoteMode();
+/* === Страница «Приложение» === */
+const appInstallBtn=$('#app-install-btn');
+if(appInstallBtn)appInstallBtn.onclick=async()=>{
+if(deferredPrompt){
+deferredPrompt.prompt();
+await deferredPrompt.userChoice;
+deferredPrompt=null;
+appInstallBtn.disabled=true;
+}else{
+showToast('Установка недоступна. Используйте меню браузера «Добавить на главный экран».','info',5000);
+}
+};
+const appFullscreenBtn=$('#app-fullscreen-btn');
+if(appFullscreenBtn)appFullscreenBtn.onclick=()=>{const b=$('#btn-fullscreen');if(b)b.click();};
+const appCacheBtn=$('#app-cache-btn');
+if(appCacheBtn)appCacheBtn.onclick=async()=>{
+try{
+const ks=await caches.keys();
+await Promise.all(ks.filter(k=>k.startsWith('mixplayer')).map(k=>caches.delete(k)));
+}catch(e){}
+showToast('Кэш очищен. Перезагрузка…','info',1500);
+setTimeout(()=>location.reload(),600);
+};
+/* ============================================================
+МОДУЛЬ YouTube (официальный IFrame Player API) — v2: диагностика загрузки
+ОТДЕЛЬНЫЙ источник ВНЕ матрицы: звук идёт напрямую в устройство вывода,
+мимо комнат / OUT-шин. Свой транспорт и своя громкость.
+============================================================ */
+let ytPlayer=null,ytReady=false,ytState=-1,ytCurrent=null,ytSeeking=false;
+let ytApiStatus='idle',ytApiTimer=null;
+function ytSetApiStatus(st,note){
+ytApiStatus=st;
+const el=$('#yt-api-status');
+if(el){
+if(st==='loading')el.textContent='API: загрузка…'+(note?' ('+note+')':'');
+else if(st==='ready')el.textContent='API: готов ✓';
+else if(st==='error')el.textContent='API: НЕ загружен'+(note?' — '+note:'')+'. Проверьте: доступен ли YouTube в вашем регионе, VPN, adblock, DNS.';
+else el.textContent='API: не запущен';
+el.style.color=(st==='ready')?'#0a8040':((st==='error')?'#a02020':'#8a4a00');
+}
+const st2=$('#yt-state');
+if(st2&&!ytReady){
+st2.textContent=(st==='loading')?'API загрузка…':((st==='error')?'API ошибка':'остановлено');
+}
+}
+function ytLoadApi(force){
+if(ytReady)return;
+if(window.YT&&window.YT.Player){ytInitPlayer();return;}
+if(ytApiStatus==='loading'&&!force)return;
+ytSetApiStatus('loading');
+const old=document.getElementById('yt-api-script');if(old)old.remove();
+const t=document.createElement('script');
+t.id='yt-api-script';t.src='https://www.youtube.com/iframe_api';t.async=true;
+t.onerror=()=>{
+ytSetApiStatus('error','ошибка загрузки скрипта');
+showToast('Не удалось загрузить YouTube API: YouTube недоступен из вашей сети (блокировка/VPN/adblock/DNS).','error',7000);
+};
+document.head.appendChild(t);
+clearTimeout(ytApiTimer);
+ytApiTimer=setTimeout(()=>{if(!ytReady)ytSetApiStatus('error','таймаут 12с');},12000);
+}
+function ytInitPlayer(){
+clearTimeout(ytApiTimer);
+try{
+ytPlayer=new YT.Player('yt-player',{
+height:'2',width:'2',
+playerVars:{controls:0,rel:0,playsinline:1},
+events:{
+onReady:function(){
+ytReady=true;ytSetApiStatus('ready');
+try{ytPlayer.setVolume(parseInt($('#yt-vol').value,10)||80);}catch(e){}
+ytUpdateNow();
+showToast('▶ YouTube API готов','success');
+},
+onStateChange:function(e){ytState=e.data;ytUpdateNow();},
+onError:function(e){
+ytSetApiStatus('error','ошибка плеера '+e.data);
+showToast('Ошибка YouTube-плеера (код '+e.data+'): ролик недоступен в вашем регионе или embedding запрещён.','error',7000);
+}
+}
+});
+}catch(e){ytSetApiStatus('error',e.message);}
+}
+window.onYouTubeIframeAPIReady=function(){ytInitPlayer();};
+function ytIsPlaying(){return ytReady&&ytState===1;}
+function ytParseId(s){
+if(!s)return null;s=s.trim();
+if(/^[\w-]{11}$/.test(s))return s;
+const m=s.match(/(?:youtu\.be\/|v=|\/shorts\/|\/live\/|\/embed\/)([\w-]{11})/);
+return m?m[1]:null;
+}
+async function ytOembed(id){
+const u='https://www.youtube.com/oembed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)+'&format=json';
+try{const r=await fetch(META_PROXY_URL+'?action=fetch&url='+encodeURIComponent(u),{cache:'no-store'});if(r.ok)return await r.json();}catch(e){}
+try{const r=await fetch(u,{cache:'no-store'});if(r.ok)return await r.json();}catch(e){}
+return null;
+}
+function ytFmt(s){s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function ytUpdateNow(){
+const el=$('#yt-now-text');const st=$('#yt-state');
+let d={};try{if(ytPlayer&&ytPlayer.getVideoData)d=ytPlayer.getVideoData()||{};}catch(e){}
+if(el)el.textContent=(d.title||'Ничего не загружено')+(d.author?' — '+d.author:'');
+if(st&&ytReady){
+const map={'-1':'остановлено','0':'остановлено','1':'▶ играет','2':'⏸ пауза','3':'буферизация…','5':'в очереди'};
+st.textContent=map[String(ytState)]||'остановлено';
+}
+}
+function ytPlay(id){
+if(!ytReady){ytLoadApi();showToast('YouTube API ещё загружается… повторите через несколько секунд.','info');return;}
+ytCurrent=id;
+ytPlayer.loadVideoById(id);
+ytUpdateNow();
+showToast('▶ YouTube: загружено','success');
+}
+$('#yt-load').onclick=async()=>{
+const id=ytParseId($('#yt-url').value);
+if(!id)return showToast('Не распознана ссылка YouTube','error');
+ytPlay(id);
+const om=await ytOembed(id);
+if(om){const el=$('#yt-now-text');if(el)el.textContent=(om.title||'')+(om.author_name?' — '+om.author_name:'');}
+};
+$('#yt-search').onclick=async()=>{
+const q=$('#yt-q').value.trim();
+if(!q)return;
+const key=$('#yt-key').value.trim()||localStorage.getItem('yt_api_key')||'';
+if(!key)return showToast('Для поиска нужен YouTube Data API v3 key (без ключа — игра по ссылке)','error');
+localStorage.setItem('yt_api_key',key);
+const url='https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=24&q='+encodeURIComponent(q)+'&key='+encodeURIComponent(key);
+let data=null;
+try{const r=await fetch(url);if(r.ok)data=await r.json();}catch(e){}
+if(!data&&metaProxyAvailable){try{const r=await fetch(META_PROXY_URL+'?action=fetch&url='+encodeURIComponent(url),{cache:'no-store'});if(r.ok)data=await r.json();}catch(e){}}
+const grid=$('#yt-results');grid.innerHTML='';
+if(!data||!data.items){grid.innerHTML='<div class="fm-empty">Поиск не удался (quota/ключ/сеть)</div>';return;}
+data.items.forEach(it=>{
+const vid=it.id&&it.id.videoId;if(!vid)return;
+const card=document.createElement('div');card.className='station-card';
+card.innerHTML=`<div class="station-name">${escapeHtml(it.snippet.title)}</div>
+<div class="station-desc">${escapeHtml(it.snippet.channelTitle||'')}</div>
+<div class="station-controls"><button class="ch-btn">▶ Играть</button></div>`;
+card.querySelector('button').onclick=(e)=>{e.stopPropagation();ytPlay(vid);};
+card.onclick=()=>ytPlay(vid);
+grid.appendChild(card);
+});
+};
+$('#yt-retry').onclick=()=>{ytReady=false;ytLoadApi(true);};
+$('#yt-play').onclick=()=>{
+if(!ytReady){ytLoadApi();showToast('YouTube API ещё загружается… повторите через несколько секунд.','info');return;}
+if(ytCurrent){ytPlayer.playVideo();}
+else{const id=ytParseId($('#yt-url').value);if(id)ytPlay(id);else showToast('Сначала вставьте ссылку','error');}
+};
+$('#yt-pause').onclick=()=>{if(ytReady)ytPlayer.pauseVideo();};
+$('#yt-stop').onclick=()=>{if(ytReady){ytPlayer.stopVideo();ytCurrent=null;ytUpdateNow();}};
+$('#yt-vol').oninput=(e)=>{if(ytReady)ytPlayer.setVolume(parseInt(e.target.value,10)||0);};
+$('#yt-seek').oninput=()=>{ytSeeking=true;};
+$('#yt-seek').onchange=(e)=>{
+ytSeeking=false;
+if(ytReady){const dur=ytPlayer.getDuration?ytPlayer.getDuration():0;if(isFinite(dur)&&dur>0)ytPlayer.seekTo(dur*(e.target.value/1000),true);}
+};
+setInterval(()=>{
+if(!ytReady||!ytPlayer)return;
+const dur=ytPlayer.getDuration?ytPlayer.getDuration():0;
+const cur=ytPlayer.getCurrentTime?ytPlayer.getCurrentTime():0;
+const seek=$('#yt-seek');
+if(seek&&!ytSeeking&&isFinite(dur)&&dur>0){seek.value=Math.round(cur/dur*1000);}
+const c=$('#yt-cur');if(c)c.textContent=ytFmt(cur);
+const d=$('#yt-dur');if(d)d.textContent=(isFinite(dur)&&dur>0)?ytFmt(dur):'0:00';
+},500);
+/* Ленивая загрузка API при первом открытии окна YouTube */
+const _openModalBase=openModal;
+openModal=function(name){_openModalBase(name);if(name==='youtube')ytLoadApi();};
+</script>
+</body>
+</html>
