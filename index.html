@@ -660,12 +660,6 @@ if(!grid)return;
 grid.innerHTML='<div style=\"padding:20px;text-align:center;color:#888;\">Функционал комнат удалён</div>';
 }
 function toggleRemoteMode(){}
-function updateRemoteUI(){}
-function primaryPlayingSlot(){
-for(let i=0;i<MATRIX_SIZE;i++){const s=engine.slots[i];if(s.isPlaying&&!s.isMuted)return i;}
-for(let i=0;i<MATRIX_SIZE;i++){const s=engine.slots[i];if(s.isPlaying)return i;}
-return -1;
-}
 /* ===== Бегущая строка ===== */
 function setMarquee(el,text){
 if(!el)return;
@@ -697,7 +691,7 @@ if(!resp.ok)return;
 const data=await resp.json();
 if(data&&data.title&&slot.nowTitle!==data.title){
 slot.nowTitle=data.title;
-updateNowPlayingDisplay();updateRemoteUI();renderSlots();updateMediaSession();
+updateNowPlayingDisplay();renderSlots();updateMediaSession();
 if($('#modal-mixer').classList.contains('open'))renderMixer();
 }
 }catch(e){}
@@ -710,52 +704,6 @@ if(s.audio&&s.isPlaying&&s.type==='radio')fetchSlotMeta(i);
 }
 }
 setInterval(pollAllMeta,15000);
-function updateRemoteUI(){
-if(npText){
-const sources=[];
-engine.slots.forEach((slot,i)=>{if(slot.isPlaying&&!slot.isMuted)sources.push(`[${i+1}] ${slot.track?.name||'?'}${slot.nowTitle?' — '+slot.nowTitle:''}`);});
-if(sources.length){setMarquee(npText,sources.join(' • '));}
-else{setMarquee(npText,'Нет источника');}
-}
-const rvol=$('#remote-master-vol');
-if(rvol)rvol.value=Math.round(engine.masterVolume*100);
-const rmute=$('#remote-mute');
-if(rmute)rmute.textContent=engine.masterVolume>0?'🔊':'';
-const list=$('#remote-rooms-list');
-if(!list)return;
-list.innerHTML='';
-if(!roomsConfig.rooms.length){
-list.innerHTML='<div style="text-align:center;padding:12px;color:#4d78c8;">Нет комнат</div>';
-return;
-}
-roomsConfig.rooms.forEach(room=>{
-const srcSlot=room.sourceSlot>=0?engine.slots[room.sourceSlot]:null;
-const div=document.createElement('div');
-div.className='remote-room'+(srcSlot&&srcSlot.isPlaying?' playing':'')+(room.muted?' muted':'');
-const trackName=srcSlot?(srcSlot.nowTitle||srcSlot.track?.name||'(пусто)'):'нет источника';
-div.innerHTML=`
-<div class="remote-room-head">
-<span class="remote-room-name">🏠 ${escapeHtml(room.name)}</span>
-<span class="remote-room-status">${room.muted?'🔇':'▶'} ${escapeHtml(String(trackName).slice(0,32))}</span>
-</div>
-<div class="remote-room-controls">
-<button class="remote-btn remote-room-btn rm-remote-play">▶</button>
-<button class="remote-btn remote-room-btn rm-remote-prev">⏮</button>
-<button class="remote-btn remote-room-btn rm-remote-next">⏭</button>
-<button class="remote-btn remote-room-btn rm-remote-mute${room.muted?' muted':''}">${room.muted?'🔇':''}</button>
-</div>
-<div class="remote-room-volume">
-<label>Vol</label>
-<input type="range" min="0" max="100" value="${Math.round(room.volume*100)}" class="rm-remote-vol">
-</div>`;
-div.querySelector('.rm-remote-play').onclick=()=>remoteAct('play',room.id);
-div.querySelector('.rm-remote-prev').onclick=()=>remoteAct('prev',room.id);
-div.querySelector('.rm-remote-next').onclick=()=>remoteAct('next',room.id);
-div.querySelector('.rm-remote-mute').onclick=()=>toggleRoomMute(room.id);
-div.querySelector('.rm-remote-vol').oninput=(e)=>setRoomVolume(room.id,parseInt(e.target.value,10)/100);
-list.appendChild(div);
-});
-}
 function findPlaylistBySlot(slotIdx){
 for(const name in playlistPlayers){
 if(playlistPlayers[name].assignedSlot===slotIdx)return name;
@@ -1309,9 +1257,9 @@ this.channels[slotIndex].gain.setTargetAtTime(0,this.ctx.currentTime,0.02);
 this.setChannelGain(slotIndex,slot.slotVolume);
 }
 }
-audio.addEventListener('play',()=>{slot.isPlaying=true;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateRemoteUI();updateMediaSession();saveSession();setTimeout(()=>fetchSlotMeta(slotIndex),1500);});
-audio.addEventListener('pause',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateRemoteUI();updateMediaSession();saveSession();});
-audio.addEventListener('ended',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();updateRemoteUI();if(typeof handleTrackEnded==='function')handleTrackEnded(slotIndex);});
+audio.addEventListener('play',()=>{slot.isPlaying=true;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateMediaSession();saveSession();setTimeout(()=>fetchSlotMeta(slotIndex),1500);});
+audio.addEventListener('pause',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();refreshPlaylistUI();updateMediaSession();saveSession();});
+audio.addEventListener('ended',()=>{slot.isPlaying=false;renderSlots();updateNowPlayingDisplay();updateTransportInfo();if(typeof handleTrackEnded==='function')handleTrackEnded(slotIndex);});
 audio.addEventListener('error',()=>{showToast(`Ошибка в слоте ${slotIndex+1}: ${name}`,'error',4000);});
 renderSlots();
 return slot;
@@ -1328,7 +1276,7 @@ if(!slot||!slot.audio)return;
 try{slot.audio.pause();slot.audio.src='';if(slot.source)slot.source.disconnect();}catch(e){}
 slot.audio=null;slot.source=null;slot.webAudioEnabled=false;slot.type=null;
 slot.track=null;slot.isPlaying=false;slot.nowTitle='';slot.coverUrl='';
-renderSlots();updateNowPlayingDisplay();updateTransportInfo();updateRemoteUI();
+renderSlots();updateNowPlayingDisplay();updateTransportInfo();
 }
 async playAll(){let c=0;for(let i=0;i<MATRIX_SIZE;i++){const s=this.slots[i];if(s.audio&&!s.isPlaying){try{await s.audio.play();c++;}catch(e){}}}if(c>0)showToast(`▶ Запущено ${c} источников`,'success');}
 pauseAll(){let c=0;for(let i=0;i<MATRIX_SIZE;i++){const s=this.slots[i];if(s.audio&&s.isPlaying){s.audio.pause();c++;}}if(c>0)showToast(`⏸ Приостановлено ${c}`,'info');}
@@ -1551,7 +1499,7 @@ switchPlaylist(e.target.value);
 function switchPlaylist(name){
 if(!playlists[name])return;
 activePlaylistName=name;
-renderPlaylistSelector();renderPlaylist();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();updatePlaylistProgress();updateRemoteUI();
+renderPlaylistSelector();renderPlaylist();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();updatePlaylistProgress();
 savePlaylistsToStorage();
 if(isRoomHost)publishLocalState('playlist');
 }
@@ -1941,7 +1889,7 @@ el.textContent=`${mIcon} ${state} трек ${player.currentIndex+1}/${tracks.len
 el.textContent=`${mIcon} Треков: ${tracks.length} • не играет`;
 }
 }
-function refreshPlaylistUI(){renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();updateRemoteUI();}
+function refreshPlaylistUI(){renderPlaylist();renderPlaylistLibrary();updatePlaylistStatus();}
 function getPlaylistAudio(){
 const player=playlistPlayers[activePlaylistName];
 if(!player||player.slotIndex<0)return null;
@@ -2816,11 +2764,11 @@ let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',(e)=>{
 e.preventDefault();
 deferredPrompt=e;
-const b=$('#btn-install');
+const b=document.getElementById('btn-install');
 if(b)b.style.display='inline-flex';
 });
 window.addEventListener('appinstalled',()=>showToast('✓ Приложение установлено','success'));
-const btnInstall=$('#btn-install');
+const btnInstall=document.getElementById('btn-install');
 if(btnInstall)btnInstall.onclick=async()=>{
 if(!deferredPrompt)return;
 deferredPrompt.prompt();
@@ -2901,13 +2849,13 @@ const area=$('#content-area');
 setPlaylistEditorCollapsed(!area.classList.contains('collapsed'));
 });
 // Пульт удалён вместе с функционалом комнат
-$('#pl-prev').onclick=()=>prevPlaylistTrack(activePlaylistName);
-$('#pl-play').onclick=()=>togglePlaylistPlay(activePlaylistName);
-$('#pl-pause').onclick=()=>pausePlaylist(activePlaylistName);
-$('#pl-stop').onclick=()=>stopPlaylist(activePlaylistName);
-$('#pl-next').onclick=()=>nextPlaylistTrack(activePlaylistName,false);
-$('#pl-mode-btn').onclick=()=>cyclePlayMode();
-$('#lib-new-pl').onclick=createPlaylist;
+//$('#pl-prev').onclick=()=>prevPlaylistTrack(activePlaylistName);
+//$('#pl-play').onclick=()=>togglePlaylistPlay(activePlaylistName);
+//$('#pl-pause').onclick=()=>pausePlaylist(activePlaylistName);
+//$('#pl-stop').onclick=()=>stopPlaylist(activePlaylistName);
+//$('#pl-next').onclick=()=>nextPlaylistTrack(activePlaylistName,false);
+//$('#pl-mode-btn').onclick=()=>cyclePlayMode();
+//$('#lib-new-pl').onclick=createPlaylist;
 // Функционал комнат и пульта удалён
 $('#btn-stop').onclick=()=>{
 engine.stopAll();
