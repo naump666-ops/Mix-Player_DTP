@@ -588,7 +588,6 @@ setSyncStatus(`комната ${code}`);
 isRoomHost=!skipPublish;
 hostDeviceId=isRoomHost?DEVICE_ID:null;
 if(!skipPublish)publishLocalState('join');
-pollRemoteState();
 const msg=skipPublish?'📥 Подключено к комнате '+code:'🔗 Комната: '+code;
 showToast(msg,skipPublish?'info':'success');
 }
@@ -647,365 +646,43 @@ state.action=action;
 lastPublishTs=Date.now();
 publishStateObject(state);
 }
-function sendCmd(action,roomId){
-if(!isRoomHost)return;
-const cmd={id:DEVICE_ID+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),action:action,room:(roomId!=null?roomId:null)};
-lastPublishedCmd=cmd.id;
-syncStateVersion=Math.max(syncStateVersion,lastReceivedVersion)+1;
-const state=buildSyncState();
-state.cmd=cmd;
-state.action='cmd';
-lastPublishTs=Date.now();
-publishStateObject(state);
-}
+function sendCmd(action,roomId){}
 function handleSyncMessage(state){
-if(!state||!state.version)return;
-if(state.origin===DEVICE_ID)return;
-if(state.isHost && state.hostDeviceId && !hostDeviceId){
-isRoomHost=false;
-hostDeviceId=state.hostDeviceId;
-}
-if(state.version>lastReceivedVersion)lastReceivedVersion=state.version;
-if(state.version<=syncStateVersion)return;
-applyRemoteState(state);
+// Комнаты удалены - синхронизация отключена
 }
 async function applyRemoteState(state){
-if(isApplyingRemote)return;
-isApplyingRemote=true;
-try{
-syncStateVersion=state.version;
-if(roomCode)setSyncStatus(`комната ${roomCode} ✓`);
-if(state.slotsInfo)remoteSlotsInfo=state.slotsInfo;
-if(state.cmd && state.cmd.id!==lastPublishedCmd && state.cmd.id!==lastHandledCmd){
-lastHandledCmd=state.cmd.id;
-handleRemoteCmd(state.cmd);
+// Комнаты удалены - применение состояния отключено
 }
-if(state.rooms){
-roomsConfig.rooms=JSON.parse(JSON.stringify(state.rooms));
-let maxId=0;
-roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
-roomNextId=maxId+1;
-saveRoomsConfig();
-if(engine.ctx)applyAllRooms();
-if($('#modal-rooms').classList.contains('open'))renderRooms();
-}
-if(state.scenes){
-roomsConfig.scenes=JSON.parse(JSON.stringify(state.scenes));
-saveRoomsConfig();
-if($('#modal-rooms').classList.contains('open'))renderRooms();
-}
-if(state.activePlaylist && playlists[state.activePlaylist]){
-activePlaylistName=state.activePlaylist;
-renderPlaylistSelector();renderPlaylist();updatePlaylistStatus();updatePlaylistPanelHeader();updatePlayModeBtn();
-}
-if(state.players){
-for(const name in state.players){
-if(!playlistPlayers[name])continue;
-const remote=state.players[name];
-const local=playlistPlayers[name];
-if(remote.playMode && remote.playMode!==local.playMode){
-local.playMode=remote.playMode;
-if(name===activePlaylistName)updatePlayModeBtn();
-}
-if(remote.assignedSlot!==undefined && remote.assignedSlot!==local.assignedSlot){
-local.assignedSlot=remote.assignedSlot;
-if(name===activePlaylistName)updatePlaylistPanelHeader();
-}
-}
-}
-if(typeof state.masterVolume==='number' && Math.abs(state.masterVolume-engine.masterVolume)>0.01){
-engine.setMasterVolume(state.masterVolume);
-$('#master-vol').value=Math.round(state.masterVolume*100);
-$('#remote-master-vol').value=Math.round(state.masterVolume*100);
-$('#btn-mute').textContent=state.masterVolume>0?'🔊':'';
-}
-updateRemoteUI();
-}catch(e){console.warn('applyRemoteState error:',e);}
-finally{isApplyingRemote=false;}
-}
-/* Команды пульта выполняются ТОЛЬКО на устройстве-плеере */
-function handleRemoteCmd(cmd){
-if(!cmd||!cmd.action)return;
-let slotIdx=-1,plName=null;
-if(cmd.room!=null){
-const room=findRoom(cmd.room);
-if(room&&room.sourceSlot>=0)slotIdx=room.sourceSlot;
-}
-if(slotIdx<0)slotIdx=engine.slots.findIndex(s=>s.isPlaying);
-if(slotIdx>=0)plName=findPlaylistBySlot(slotIdx);
-if(!plName)plName=activePlaylistName;
-const isPlayer=engine.getPlayingCount()>0||(slotIdx>=0&&!!engine.slots[slotIdx]&&!!engine.slots[slotIdx].audio);
-if(!isPlayer)return;
-const hasPl=!!(playlists[plName]&&playlists[plName].length);
-switch(cmd.action){
-case 'next': if(hasPl)nextPlaylistTrack(plName,false); break;
-case 'prev': if(hasPl)prevPlaylistTrack(plName); break;
-case 'play': if(hasPl)togglePlaylistPlay(plName); else engine.playAll(); break;
-case 'pause': if(hasPl)pausePlaylist(plName); else engine.pauseAll(); break;
-case 'stop': if(hasPl)stopPlaylist(plName); else engine.stopAll(); break;
-}
-if(isRoomHost)publishLocalState('cmd-applied');
-}
+/* Команды пульта удалены вместе с комнатами */
+function handleRemoteCmd(cmd){}
 function localIsPlayer(){return engine.getPlayingCount()>0;}
-function isHost(){return isRoomHost && roomCode;}
-function remoteAct(action,roomId){
-if(isHost()){
-sendCmd(action,roomId);
-return;
-}
-switch(action){
-case 'play': if(getActivePlaylist().length)togglePlaylistPlay(activePlaylistName); else engine.playAll(); break;
-case 'pause': pausePlaylist(activePlaylistName); engine.pauseAll(); break;
-case 'stop': stopPlaylist(activePlaylistName); engine.stopAll(); break;
-case 'prev': prevPlaylistTrack(activePlaylistName); break;
-case 'next': nextPlaylistTrack(activePlaylistName,false); break;
-}
-updateRemoteUI();
-}
-async function pollRemoteState(){
-if(!roomCode)return;
-try{
-const resp=await fetch(META_PROXY_URL+'?action=state&room='+encodeURIComponent(roomCode),{cache:'no-store'});
-if(resp.ok){
-const data=await resp.json();
-if(data && data.version){
-handleSyncMessage(data);
-}
-}
-}catch(e){}
-}
+function isHost(){return false;}
+function remoteAct(action,roomId){}
+async function pollRemoteState(){}
 let roomsConfig={rooms:[],scenes:[]};
 let roomNextId=1;
-function loadRoomsConfig(){
-try{
-const raw=localStorage.getItem(ROOMS_KEY);
-if(raw){
-const d=JSON.parse(raw);
-if(d&&Array.isArray(d.rooms))roomsConfig=d;
-}
-}catch(e){}
-if(!Array.isArray(roomsConfig.scenes))roomsConfig.scenes=[];
-let maxId=0;
-roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
-roomNextId=maxId+1;
-}
-function saveRoomsConfig(){
-try{localStorage.setItem(ROOMS_KEY,JSON.stringify(roomsConfig));}catch(e){}
-if(!isApplyingRemote && isRoomHost)publishLocalState('rooms');
-}
-function findRoom(id){return roomsConfig.rooms.find(r=>r.id===id);}
-function roomApply(room){
-if(!engine.ctx)return;
-room.outputs.forEach(out=>{
-for(let i=0;i<MATRIX_SIZE;i++)engine.matrix[i][out]=false;
-if(room.sourceSlot>=0)engine.matrix[room.sourceSlot][out]=true;
-engine.setOutputGain(out,room.muted?0:room.volume);
-});
-engine.applyMatrix();
-}
-function applyAllRooms(){
-if(!engine.ctx)return;
-roomsConfig.rooms.forEach(roomApply);
-renderMatrix();
-renderMixer();
-}
-function createRoom(){
-const name=prompt('Название комнаты/зоны:');
-if(!name)return;
-const trimmed=name.trim();
-if(!trimmed)return;
-const used=new Set();
-roomsConfig.rooms.forEach(r=>r.outputs.forEach(o=>used.add(o)));
-const free=[];
-for(let o=0;o<MATRIX_SIZE;o++)if(!used.has(o))free.push(o);
-const outputs=free.slice(0,2);
-roomsConfig.rooms.push({id:roomNextId++,name:trimmed,outputs:outputs,sourceSlot:-1,volume:0.8,muted:false,sleepAt:0});
-saveRoomsConfig();
-applyAllRooms();
-renderRooms();
-showToast(`🏠 Создана комната: ${trimmed}`,'success');
-}
-function deleteRoom(id){
-const room=findRoom(id);
-if(!room)return;
-if(!confirm(`Удалить комнату "${room.name}"?`))return;
-roomsConfig.rooms=roomsConfig.rooms.filter(r=>r.id!==id);
-saveRoomsConfig();
-applyAllRooms();
-renderRooms();
-}
-function renameRoom(id){
-const room=findRoom(id);
-if(!room)return;
-const n=prompt('Новое название комнаты:',room.name);
-if(!n)return;
-const t=n.trim();
-if(!t)return;
-room.name=t;
-saveRoomsConfig();
-renderRooms();
-}
-function toggleRoomOutput(id,out){
-const room=findRoom(id);
-if(!room)return;
-const idx=room.outputs.indexOf(out);
-if(idx>=0)room.outputs.splice(idx,1);
-else room.outputs.push(out);
-saveRoomsConfig();
-roomApply(room);
-renderMatrix();
-renderRooms();
-}
-function setRoomSource(id,slot){
-const room=findRoom(id);
-if(!room)return;
-room.sourceSlot=slot;
-saveRoomsConfig();
-roomApply(room);
-renderMatrix();
-renderRooms();
-}
-function setRoomVolume(id,v){
-const room=findRoom(id);
-if(!room)return;
-room.volume=v;
-saveRoomsConfig();
-if(!room.muted)room.outputs.forEach(out=>engine.setOutputGain(out,v));
-}
-function toggleRoomMute(id){
-const room=findRoom(id);
-if(!room)return;
-room.muted=!room.muted;
-saveRoomsConfig();
-room.outputs.forEach(out=>engine.setOutputGain(out,room.muted?0:room.volume));
-renderRooms();
-}
-function setRoomSleep(id,minutes){
-const room=findRoom(id);
-if(!room)return;
-room.sleepAt=minutes>0?Date.now()+minutes*60000:0;
-saveRoomsConfig();
-renderRooms();
-if(minutes>0)showToast(`🏠 ${room.name}: таймер сна ${minutes} мин`,'info');
-}
-function playRoomSource(id){
-const room=findRoom(id);
-if(!room)return;
-if(room.sourceSlot<0){showToast('Не выбран источник комнаты','error');return;}
-engine.playSlot(room.sourceSlot);
-}
-function checkRoomSleepTimers(){
-let changed=false;
-roomsConfig.rooms.forEach(room=>{
-if(room.sleepAt&&Date.now()>=room.sleepAt){
-room.sleepAt=0;
-room.muted=true;
-roomApply(room);
-changed=true;
-showToast(`🏠 ${room.name}: таймер сна — звук выключен`,'info');
-}
-});
-if(changed){
-saveRoomsConfig();
-if($('#modal-rooms').classList.contains('open'))renderRooms();
-}
-}
-function saveScene(){
-const name=$('#scene-name').value.trim();
-if(!name){showToast('Введите название сцены','error');return;}
-roomsConfig.scenes.push({id:Date.now(),name:name,rooms:JSON.parse(JSON.stringify(roomsConfig.rooms))});
-$('#scene-name').value='';
-saveRoomsConfig();
-renderRooms();
-showToast(`🎬 Сцена "${name}" сохранена`,'success');
-}
-function applyScene(id){
-const s=roomsConfig.scenes.find(x=>x.id===id);
-if(!s)return;
-roomsConfig.rooms=JSON.parse(JSON.stringify(s.rooms));
-let maxId=0;
-roomsConfig.rooms.forEach(r=>{if(r.id>maxId)maxId=r.id;});
-roomNextId=maxId+1;
-saveRoomsConfig();
-applyAllRooms();
-renderRooms();
-showToast(`🎬 Сцена "${s.name}" применена`,'success');
-if(isRoomHost)publishLocalState('scene');
-}
-function deleteScene(id){
-roomsConfig.scenes=roomsConfig.scenes.filter(x=>x.id!==id);
-saveRoomsConfig();
-renderRooms();
-}
+function loadRoomsConfig(){}
+function saveRoomsConfig(){}
+function findRoom(id){return null;}
+function roomApply(room){}
+function applyAllRooms(){}
+function createRoom(){}
+function deleteRoom(id){}
+function renameRoom(id){}
+function toggleRoomOutput(id,out){}
+function setRoomSource(id,slot){}
+function setRoomVolume(id,v){}
+function toggleRoomMute(id){}
+function setRoomSleep(id,minutes){}
+function playRoomSource(id){}
+function checkRoomSleepTimers(){}
+function saveScene(){}
+function applyScene(id){}
+function deleteScene(id){}
 function renderRooms(){
 const grid=$('#rooms-grid');
 if(!grid)return;
-grid.innerHTML='';
-if(!roomsConfig.rooms.length){
-grid.innerHTML='<div class="fm-empty">Комнат пока нет.<br>Нажмите «＋ Комната», чтобы создать первую зону.</div>';
-}
-roomsConfig.rooms.forEach(room=>{
-const card=document.createElement('div');
-card.className='room-card';
-card.innerHTML=`
-<div class="room-head">
-<span class="room-name">🏠 ${escapeHtml(room.name)}</span>
-<span class="room-actions">
-<button class="pllib-btn rm-rename">✎</button>
-<button class="pllib-btn rm-del">✕</button>
-</span>
-</div>
-<div class="room-outputs">${Array.from({length:MATRIX_SIZE},(_,o)=>`<button class="out-chip${room.outputs.includes(o)?' on':''}" data-out="${o}">${o+1}</button>`).join('')}</div>
-<div class="room-row">
-<label>Источник:</label>
-<select class="rm-source">
-<option value="-1">— не назначен —</option>
-${Array.from({length:MATRIX_SIZE},(_,i)=>`<option value="${i}"${room.sourceSlot===i?' selected':''}>${i+1}: ${escapeHtml(engine.slots[i]?.track?.name||'(пусто)')}</option>`).join('')}
-</select>
-<button class="pllib-btn rm-play">▶</button>
-</div>
-<div class="room-row">
-<label>Громкость:</label>
-<input type="range" class="rm-vol" min="0" max="100" value="${Math.round(room.volume*100)}">
-<button class="pllib-btn rm-mute${room.muted?' active':''}">${room.muted?'MUTED':'ON'}</button>
-</div>
-<div class="room-row">
-<label>Сон:</label>
-<select class="rm-sleep">
-<option value="0">выкл</option>
-<option value="15">15 мин</option>
-<option value="30">30 мин</option>
-<option value="60">60 мин</option>
-</select>
-<span class="room-status">${room.muted?'🔇 выкл':(room.sourceSlot>=0?'▶ слот '+(room.sourceSlot+1):'нет источника')}</span>
-</div>`;
-card.querySelector('.rm-rename').onclick=(e)=>{e.stopPropagation();renameRoom(room.id);};
-card.querySelector('.rm-del').onclick=(e)=>{e.stopPropagation();deleteRoom(room.id);};
-card.querySelectorAll('.out-chip').forEach(chip=>{
-chip.onclick=(e)=>{e.stopPropagation();toggleRoomOutput(room.id,parseInt(chip.dataset.out,10));};
-});
-card.querySelector('.rm-source').onchange=(e)=>{setRoomSource(room.id,parseInt(e.target.value,10));};
-card.querySelector('.rm-play').onclick=(e)=>{e.stopPropagation();playRoomSource(room.id);};
-card.querySelector('.rm-vol').oninput=(e)=>{setRoomVolume(room.id,parseInt(e.target.value,10)/100);};
-card.querySelector('.rm-mute').onclick=(e)=>{e.stopPropagation();toggleRoomMute(room.id);};
-card.querySelector('.rm-sleep').onchange=(e)=>{setRoomSleep(room.id,parseInt(e.target.value,10));};
-grid.appendChild(card);
-});
-const sl=$('#scenes-list');
-if(sl){
-sl.innerHTML='';
-if(!roomsConfig.scenes.length){
-sl.innerHTML='<span style="font-size:10px;color:#667;">Сцен пока нет.</span>';
-}
-roomsConfig.scenes.forEach(s=>{
-const wrap=document.createElement('span');
-wrap.className='scene-chip';
-wrap.innerHTML=`<button class="pllib-btn sc-apply">▶ ${escapeHtml(s.name)}</button> <button class="pllib-btn sc-del">✕</button>`;
-wrap.querySelector('.sc-apply').onclick=()=>applyScene(s.id);
-wrap.querySelector('.sc-del').onclick=()=>deleteScene(s.id);
-sl.appendChild(wrap);
-});
-}
+grid.innerHTML='<div style=\"padding:20px;text-align:center;color:#888;\">Функционал комнат удалён</div>';
 }
 function toggleRemoteMode(){
 const overlay=$('#remote-overlay');
@@ -3475,23 +3152,13 @@ setSyncStatus('не активна',false);
 $('#room-code-status').textContent='Не в комнате';
 }
 }catch(e){}
-/* === ЦИКЛ СИНХРОНИЗАЦИИ: опрос + heartbeat-публикация раз в 4 с === */
-setInterval(()=>{
-pollRemoteState();
-if(roomCode && Date.now()-lastPublishTs>4000)publishLocalState('beat');
-if($('#remote-overlay').classList.contains('active')){
-updateRemoteUI();
-}
-updateMediaSession();
-syncWakeLock();
-},SYNC_INTERVAL);
+/* === ЦИКЛ СИНХРОНИЗАЦИИ: отключён (комнаты удалены) === */
 const originalInit=engine.init.bind(engine);
 engine.init=async function(){
 await originalInit();
 setTimeout(async()=>{
 await restoreSession();
-applyAllRooms();
-updateRemoteUI();
+updateMediaSession();
 pollAllMeta();
 },1000);
 };
