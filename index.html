@@ -573,35 +573,10 @@ for(let i=0;i<4;i++)c+=chars[Math.floor(Math.random()*chars.length)];
 return c;
 }
 function joinRoom(code,skipPublish){
-if(!code||code.length!==4){showToast('Код должен быть 4 символа','error');return;}
-code=code.toUpperCase();
-roomCode=code;
-try{localStorage.setItem(ROOM_CODE_KEY,code);}catch(e){}
-try{
-if(syncChannel)syncChannel.close();
-syncChannel=new BroadcastChannel('mixplayer_room_'+code);
-syncChannel.onmessage=(ev)=>{handleSyncMessage(ev.data);};
-}catch(e){}
-$('#room-code-input').value=code;
-$('#room-code-status').textContent=`Комната: ${code}`;
-setSyncStatus(`комната ${code}`);
-isRoomHost=!skipPublish;
-hostDeviceId=isRoomHost?DEVICE_ID:null;
-if(!skipPublish)publishLocalState('join');
-const msg=skipPublish?'📥 Подключено к комнате '+code:'🔗 Комната: '+code;
-showToast(msg,skipPublish?'info':'success');
+// Функционал комнат удалён
 }
 function leaveRoom(){
-if(syncChannel){try{syncChannel.close();}catch(e){}}
-syncChannel=null;
-roomCode=null;
-isRoomHost=false;
-hostDeviceId=null;
-try{localStorage.removeItem(ROOM_CODE_KEY);}catch(e){}
-$('#room-code-input').value='';
-$('#room-code-status').textContent='Не в комнате';
-setSyncStatus('не активна',false);
-showToast('🔓 Покинули комнату','info');
+// Функционал комнат удалён
 }
 function buildSyncState(){
 const state={
@@ -2925,12 +2900,7 @@ if(e.target.closest('.playlist-header-controls'))return;
 const area=$('#content-area');
 setPlaylistEditorCollapsed(!area.classList.contains('collapsed'));
 });
-$('#remote-header').addEventListener('click',(e)=>{
-if(e.target.closest('#remote-exit'))return;
-const ov=$('#remote-overlay');
-ov.classList.toggle('collapsed');
-$('#remote-collapse').textContent=ov.classList.contains('collapsed')?'▲':'▼';
-});
+// Пульт удалён вместе с функционалом комнат
 $('#pl-prev').onclick=()=>prevPlaylistTrack(activePlaylistName);
 $('#pl-play').onclick=()=>togglePlaylistPlay(activePlaylistName);
 $('#pl-pause').onclick=()=>pausePlaylist(activePlaylistName);
@@ -2938,40 +2908,7 @@ $('#pl-stop').onclick=()=>stopPlaylist(activePlaylistName);
 $('#pl-next').onclick=()=>nextPlaylistTrack(activePlaylistName,false);
 $('#pl-mode-btn').onclick=()=>cyclePlayMode();
 $('#lib-new-pl').onclick=createPlaylist;
-$('#room-add').onclick=()=>createRoom();
-$('#scene-save').onclick=()=>saveScene();
-// Кнопка пульта удалена вместе с функционалом комнат
-$('#remote-exit').onclick=()=>toggleRemoteMode();
-$('#remote-play').onclick=()=>{remoteAct('play',null);};
-$('#remote-pause').onclick=()=>{remoteAct('pause',null);};
-$('#remote-stop').onclick=()=>{remoteAct('stop',null);};
-$('#remote-prev').onclick=()=>{remoteAct('prev',null);};
-$('#remote-next').onclick=()=>{remoteAct('next',null);};
-$('#remote-mute').onclick=()=>{
-$('#btn-mute').click();
-updateRemoteUI();
-};
-$('#remote-master-vol').oninput=(e)=>{
-const v=parseInt(e.target.value,10)/100;
-engine.setMasterVolume(v);
-$('#master-vol').value=Math.round(v*100);
-$('#btn-mute').textContent=v>0?'🔊':'';
-if(isRoomHost)publishLocalState('volume');
-};
-$('#room-code-join').onclick=()=>{
-const code=$('#room-code-input').value.trim().toUpperCase();
-if(code.length!==4){showToast('Введите 4 символа','error');return;}
-joinRoom(code,true);
-};
-$('#room-code-new').onclick=()=>{
-const code=generateRoomCode();
-$('#room-code-input').value=code;
-joinRoom(code,false);
-};
-$('#room-code-leave').onclick=()=>leaveRoom();
-$('#room-code-input').addEventListener('input',(e)=>{
-e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
-});
+// Функционал комнат и пульта удалён
 $('#btn-stop').onclick=()=>{
 engine.stopAll();
 for(const pName in playlistPlayers){
@@ -3132,19 +3069,8 @@ updateTransportInfo();
 updateOutputInfo();
 updateNowPlayingDisplay();
 checkProxyAvailability();
-try{
-const savedCode=localStorage.getItem(ROOM_CODE_KEY);
-if(savedCode && savedCode.length===4){
-joinRoom(savedCode,true);
-isRoomHost=false;
-hostDeviceId=null;
-setSyncStatus('ожидание хоста...',false);
-$('#room-code-status').textContent=`Комната: ${savedCode} (клиент)`;
-}else{
+// Функционал комнат удалён
 setSyncStatus('не активна',false);
-$('#room-code-status').textContent='Не в комнате';
-}
-}catch(e){}
 /* === ЦИКЛ СИНХРОНИЗАЦИИ: отключён (комнаты удалены) === */
 const originalInit=engine.init.bind(engine);
 engine.init=async function(){
