@@ -299,12 +299,9 @@ body.drag-over::after{content:'Отпустите файлы';position:fixed;ins
 <button class="soma-btn" data-modal="somafm">🌌 SomaFM</button>
 <button class="fav-btn" data-modal="favorites">⭐ Favs</button>
 <button class="pl-btn" data-modal="playlists">🎼 Плейлисты</button>
-<button data-modal="rooms">🏠 Комнаты</button>
 <button data-modal="matrix">🔀 Матрица</button>
 <button data-modal="mixer">🎚️ Микшер</button>
-<button id="btn-remote">📱 Пульт</button>
 <button data-modal="youtube">▶ YouTube</button>
-<button id="btn-install" style="display:none;">⬇ Приложение</button>
 <button id="btn-fullscreen">⛶</button>
 </div>
 <button id="btn-stop">⏹ Стоп всё</button>
@@ -450,47 +447,6 @@ body.drag-over::after{content:'Отпустите файлы';position:fixed;ins
 <div class="modal-body"><div class="playlist-container" id="slots-page-list" style="height:100%;"></div></div>
 </div>
 </div>
-<div class="modal-overlay" id="modal-rooms">
-<div class="modal-window size-large">
-<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🏠 Комнаты и зоны — мультирум маршрутизация</span><button class="modal-close" data-close="rooms">✕</button></div>
-<div class="modal-body">
-<div class="m-scope" id="m-scope-rooms">
-<div class="mtabs">
-<button class="active" data-mtab="rooms">🏠 Комнаты</button>
-<button data-mtab="scenes">🎬 Сцены</button>
-</div>
-<div class="mtab-page active" data-mtab="rooms">
-<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-<button id="room-add">＋ Комната</button>
-<span style="font-size:10px;color:#556;">Комната = группа выходов с общим источником и громкостью.</span>
-</div>
-<div style="margin-bottom:10px;padding:8px;border:1px dashed #8a8a8a;border-radius:4px;background:rgba(255,255,255,.35);">
-<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-<strong style="font-size:11px;">🔗 Код комнаты:</strong>
-<input type="text" id="room-code-input" placeholder="ABCD" maxlength="4" style="width:80px;text-align:center;letter-spacing:3px;text-transform:uppercase;font-weight:700;">
-<button id="room-code-join">Присоединиться</button>
-<button id="room-code-new">Новый код</button>
-<button id="room-code-leave">Покинуть</button>
-<span id="room-code-status" style="font-size:10px;color:#33509a;"></span>
-</div>
-<div style="font-size:9px;color:#667;margin-top:4px;">Устройства с одинаковым кодом синхронизируют состояние комнат, воспроизведение и громкость.</div>
-</div>
-<div class="stations-grid" id="rooms-grid"></div>
-</div>
-<div class="mtab-page" data-mtab="scenes">
-<div class="rooms-scenes" style="margin-top:0;">
-<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
-<strong style="font-size:11px;">🎬 Сцены:</strong>
-<input type="text" id="scene-name" placeholder="Название сцены…" style="flex:1;min-width:140px;">
-<button id="scene-save">Сохранить текущую</button>
-</div>
-<div id="scenes-list" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 <div class="modal-overlay" id="modal-matrix">
 <div class="modal-window size-matrix">
 <div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">🔀 Матрица 20×19 — маршрутизация выходов</span><button class="modal-close" data-close="matrix">✕</button></div>
@@ -563,56 +519,12 @@ body.drag-over::after{content:'Отпустите файлы';position:fixed;ins
 </div>
 </div>
 </div>
-<div class="modal-overlay" id="modal-app">
-<div class="modal-window size-app">
-<div class="modal-header"><button class="modal-back" title="Назад">◀</button><span class="modal-title">⬇ Приложение</span><button class="modal-close" data-close="app">✕</button></div>
-<div class="modal-body">
-<div style="display:flex;flex-direction:column;gap:8px;max-width:340px;margin:0 auto;">
-<button id="app-install-btn">⬇ Установить приложение</button>
-<button id="app-fullscreen-btn">⛶ Во весь экран</button>
-<button id="app-cache-btn">↻ Очистить кэш и перезагрузить</button>
-<div style="font-size:10px;color:#556;line-height:1.6;">Mix Player v.1 — Multi-Room.<br>Если кнопка установки недоступна — используйте меню браузера «Добавить на главный экран».</div>
-</div>
-</div>
-</div>
-</div>
-<!-- ПУЛЬТ -->
-<div id="remote-overlay">
-<div class="remote-header" id="remote-header" title="Свернуть/развернуть пульт">
-<span class="remote-grip">≡</span>
-<span class="remote-title">📱 Пульт Mix Player</span>
-<span class="remote-room-code" id="remote-room-code">----</span>
-<span class="remote-collapse" id="remote-collapse">▼</span>
-<button id="remote-exit" class="modal-close">✕</button>
-</div>
-<div class="remote-body" id="remote-body">
-<div class="remote-now-playing">
-<div class="remote-np-label">Now Playing</div>
-<div class="remote-np-text" id="remote-np-text">Нет источника</div>
-</div>
-<div class="remote-transport">
-<button class="remote-btn" id="remote-prev">⏮</button>
-<button class="remote-btn" id="remote-play">▶</button>
-<button class="remote-btn" id="remote-next">⏭</button>
-</div>
-<div class="remote-transport">
-<button class="remote-btn" id="remote-pause">⏸</button>
-<button class="remote-btn" id="remote-stop">⏹</button>
-<button class="remote-btn" id="remote-mute">🔊</button>
-</div>
-<div class="remote-volume">
-<div class="remote-volume-label">ГРОМКОСТЬ</div>
-<input type="range" id="remote-master-vol" min="0" max="100" value="80">
-</div>
-<div class="remote-rooms-list" id="remote-rooms-list"></div>
-</div>
-</div>
 <script>
 const $=(s,c=document)=>c.querySelector(s);
 const $$=(s,c=document)=>[...c.querySelectorAll(s)];
 const MATRIX_SIZE=16;
 /* ===== ВИРТУАЛЬНЫЕ СУЩНОСТИ ===== */
-const VIRT_IN=[{id:'capture',name:'CAPTURE'},{id:'mic',name:'MIC'},{id:'loop',name:'LOOP'},{id:'tone',name:'TONE'}];
+const VIRT_IN=[{id:'capture1',name:'CAPTURE 1'},{id:'capture2',name:'CAPTURE 2'},{id:'capture3',name:'CAPTURE 3'},{id:'capture4',name:'CAPTURE 4'},{id:'mic',name:'MIC'},{id:'loop',name:'LOOP'},{id:'tone',name:'TONE'}];
 const VOUT=[{id:'rec',name:'REC'},{id:'sub',name:'SUB'},{id:'mono',name:'MONO'}];
 const IN_COUNT=MATRIX_SIZE+VIRT_IN.length;   /* 20 */
 const OUT_COUNT=MATRIX_SIZE+VOUT.length;     /* 19 */
@@ -672,7 +584,6 @@ syncChannel.onmessage=(ev)=>{handleSyncMessage(ev.data);};
 }catch(e){}
 $('#room-code-input').value=code;
 $('#room-code-status').textContent=`Комната: ${code}`;
-$('#remote-room-code').textContent=code;
 setSyncStatus(`комната ${code}`);
 isRoomHost=!skipPublish;
 hostDeviceId=isRoomHost?DEVICE_ID:null;
@@ -690,7 +601,6 @@ hostDeviceId=null;
 try{localStorage.removeItem(ROOM_CODE_KEY);}catch(e){}
 $('#room-code-input').value='';
 $('#room-code-status').textContent='Не в комнате';
-$('#remote-room-code').textContent='—';
 setSyncStatus('не активна',false);
 showToast('🔓 Покинули комнату','info');
 }
@@ -1156,7 +1066,6 @@ if(s.audio&&s.isPlaying&&s.type==='radio')fetchSlotMeta(i);
 }
 setInterval(pollAllMeta,15000);
 function updateRemoteUI(){
-const npText=$('#remote-np-text');
 if(npText){
 const sources=[];
 engine.slots.forEach((slot,i)=>{if(slot.isPlaying&&!slot.isMuted)sources.push(`[${i+1}] ${slot.track?.name||'?'}${slot.nowTitle?' — '+slot.nowTitle:''}`);});
@@ -1704,7 +1613,14 @@ this.channels[ch].gain.setTargetAtTime(0,this.ctx.currentTime,0.02);
 this.channels[ch].gain.setTargetAtTime(slot.slotVolume,this.ctx.currentTime,0.02);
 }
 }
-renderMixer();renderSlots();
+// Обновляем только кнопку mute и класс канала, не перерисовывая весь микшер
+const channelEl=document.querySelector(`#mixer-channels .mixer-channel:nth-child(${ch+1})`);
+if(channelEl){
+channelEl.classList.toggle('muted',muted);
+const muteBtn=channelEl.querySelector('.ch-mute-btn');
+if(muteBtn)muteBtn.textContent=muted?'MUTED':'MUTE';
+}
+renderSlots();
 }
 setGroupAssign(ch,g,on){
 this.groupMatrix[ch][g]=!!on;
@@ -1798,7 +1714,7 @@ async function virtStart(idx,kind){
 if(!engine.ctx)return;
 virtStop(idx);
 try{
-if(kind==='capture'){
+if(kind.startsWith('capture')){
 /* ПАТЧ ВЕТКИ CAPTURE: подавление локального звука + контроль поверхности захвата */
 const stream=await navigator.mediaDevices.getDisplayMedia({
 video:true,
@@ -1817,10 +1733,10 @@ const vs=stream.getVideoTracks()[0];
 const surf=(vs&&vs.getSettings)?(vs.getSettings().displaySurface||''):'';
 const sup=(at.getSettings)?!!at.getSettings().suppressLocalAudioPlayback:false;
 if(surf==='monitor'||surf==='window'){
-showToast('⚠ Захвачен ЭКРАН/окно: возможен самозахват (эхо). Рекомендуем захватывать ВКЛАДКУ; маршрутизируйте слот 17 вручную.','error',9000);
+showToast('⚠ Захвачен ЭКРАН/окно: возможен самозахват (эхо). Рекомендуем захватывать ВКЛАДКУ; маршрутизируйте слот '+ (idx+1) +' вручную.','error',9000);
 }else{
 engine.matrix[idx][0]=true;engine.matrix[idx][1]=true;engine.applyMatrix();
-showToast('✓ CAPTURE: звук вкладки захвачен → слот 17 → OUT1+OUT2','success',5000);
+showToast('✓ CAPTURE '+kind.toUpperCase()+': звук вкладки захвачен → слот '+(idx+1)+' → OUT1+OUT2','success',5000);
 }
 if(!sup&&surf==='browser'){
 showToast('⚠ Браузер не подавил звук вкладки: заглушите вкладку-источник (ПКМ по вкладке → «Выключить звук»), иначе возможно эхо','error',9000);
@@ -3013,8 +2929,9 @@ if(slot.kind==='virt'){
 const vt=VIRT_IN[ch-MATRIX_SIZE].id;
 const vbtn=document.createElement('button');
 vbtn.className='ch-mute-btn';
-vbtn.textContent=slot.active?'⏹ Стоп':(vt==='capture'?'▶ Tab/YouTube':vt==='mic'?'🎤 Микрофон':vt==='loop'?'⚠ Loop':'〜 Тон');
-vbtn.title=vt==='capture'?'Захват вкладки/окна/экрана (getDisplayMedia). Захватывайте ВКЛАДКУ со звуком и глушите её собственный звук — иначе эхо/самозахват.':vt==='mic'?'Микрофон (getUserMedia)':vt==='loop'?'LOOP: мастер-шина → вход. Осторожно: самовозбуждение!':'Тест-тон 440Hz';
+const isCap=vt.startsWith('capture');
+vbtn.textContent=slot.active?'⏹ Стоп':(isCap?'📥 Захват вкладки':vt==='mic'?'🎤 Микрофон':vt==='loop'?'⚠ Loop':'〜 Тон');
+vbtn.title=isCap?'Захват вкладки/окна/экрана (getDisplayMedia). Захватывайте ВКЛАДКУ со звуком и глушите её собственный звук — иначе эхо/самозахват.':vt==='mic'?'Микрофон (getUserMedia)':vt==='loop'?'LOOP: мастер-шина → вход. Осторожно: самовозбуждение!':'Тест-тон 440Hz';
 vbtn.onclick=(e)=>{e.stopPropagation();if(slot.active)virtStop(ch);else virtStart(ch,vt);};
 controls.appendChild(vbtn);
 }
@@ -3597,29 +3514,6 @@ $$('.modal-overlay.open').forEach(m=>{openName=m.id.replace('modal-','');});
 const railObserver=new MutationObserver(syncRail);
 $$('.modal-overlay').forEach(m=>railObserver.observe(m,{attributes:true,attributeFilter:['class']}));
 })();
-/* === Страница «Приложение» === */
-const appInstallBtn=$('#app-install-btn');
-if(appInstallBtn)appInstallBtn.onclick=async()=>{
-if(deferredPrompt){
-deferredPrompt.prompt();
-await deferredPrompt.userChoice;
-deferredPrompt=null;
-appInstallBtn.disabled=true;
-}else{
-showToast('Установка недоступна. Используйте меню браузера «Добавить на главный экран».','info',5000);
-}
-};
-const appFullscreenBtn=$('#app-fullscreen-btn');
-if(appFullscreenBtn)appFullscreenBtn.onclick=()=>{const b=$('#btn-fullscreen');if(b)b.click();};
-const appCacheBtn=$('#app-cache-btn');
-if(appCacheBtn)appCacheBtn.onclick=async()=>{
-try{
-const ks=await caches.keys();
-await Promise.all(ks.filter(k=>k.startsWith('mixplayer')).map(k=>caches.delete(k)));
-}catch(e){}
-showToast('Кэш очищен. Перезагрузка…','info',1500);
-setTimeout(()=>location.reload(),600);
-};
 /* ============================================================
 МОДУЛЬ YouTube (официальный IFrame Player API) — v2: диагностика загрузки
 ОТДЕЛЬНЫЙ источник ВНЕ матрицы: звук идёт напрямую в устройство вывода,
