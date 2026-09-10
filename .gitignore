@@ -1,8 +1,10 @@
 ```
+# Dependencies
+node_modules/
+
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
@@ -13,39 +15,32 @@
 .vscode/
 .idea/
 
-# Dependencies
-node_modules/
-.venv/
-venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-dist/
-build/
-target/
-.gradle/
-
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Compiled files
-*.pyc
-*.class
+# Build artifacts
+dist/
+build/
+target/
 *.o
+*.obj
 *.exe
 *.dll
 *.so
 *.a
-*.obj
 *.out
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
 
-# Compressed files
+# Compression files
 *.zip
 *.gz
 *.tar
