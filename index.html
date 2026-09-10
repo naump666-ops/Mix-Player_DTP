@@ -2,12 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0b3ea8">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MixPlayer">
 <title>Mix Player v.1 — Multi-Room</title>
 <style>
 :root{
@@ -41,8 +37,6 @@ input[type="text"],select{background:#fff;border:1px solid #7a7a7a;border-radius
 select{background:linear-gradient(#f4f4f4,#d8d8d8);padding:3px 4px;}
 main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:transparent;}
 #page-player,#page-editor{display:contents;}
-.mobile-tabs{display:none;}
-.mtab{flex:1;justify-content:center;}
 .main-viz-panel{margin:8px 8px 0 8px;border:2px solid;border-color:#4a5a8a #05070f #05070f #4a5a8a;background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2) 55%,var(--lcd-bg1));border-radius:6px;display:flex;flex-direction:column;flex-shrink:0;box-shadow:inset 0 0 16px rgba(0,40,120,.85),0 1px 0 rgba(255,255,255,.5);}
 .main-viz-panel.hidden{display:none;}
 .main-viz-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px;background:linear-gradient(rgba(120,150,220,.18),rgba(20,40,90,.18));border-bottom:1px solid rgba(90,130,220,.35);}
@@ -64,9 +58,7 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;back
 .np-text .mq:last-child,.remote-np-text .mq:last-child{display:none;}
 .np-text.marquee .mq:last-child,.remote-np-text.marquee .mq:last-child{display:block;}
 @keyframes mqscroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-@media (max-width:720px){
 .np-text.marquee .mq-wrap,.remote-np-text.marquee .mq-wrap{animation:mqscroll 12s linear infinite;}
-}
 .transport-bar{margin:8px 8px 0 8px;padding:7px 10px;flex-shrink:0;flex-wrap:wrap;gap:6px;display:flex;align-items:center;border-radius:6px;background:linear-gradient(#efefef,#cfcfcf 45%,#bdbdbd 55%,#a8a8a8);border:1px solid #7d7d7d;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #909090;}
 .transport-bar button{width:36px;height:36px;padding:0;border-radius:50%;justify-content:center;font-size:12px;color:#222;background:radial-gradient(circle at 35% 28%,#ffffff,#dcdcdc 40%,#aeaeae 75%,#8d8d8d);border:1px solid #555;box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 1px 1px #fff;}
 .transport-bar button:active{box-shadow:inset 1px 2px 4px rgba(0,0,0,.5);background:radial-gradient(circle at 50% 60%,#c4c4c4,#9a9a9a);}
@@ -284,87 +276,7 @@ body.drag-over::after{content:'Отпустите файлы';position:fixed;ins
 #toast-container{position:fixed;bottom:40px;right:16px;display:flex;flex-direction:column;gap:5px;z-index:4000;}
 .toast{background:linear-gradient(var(--lcd-bg1),var(--lcd-bg2));border:1px solid #3a5a9a;border-radius:4px;padding:7px 12px;font-size:11px;max-width:360px;color:var(--lcd-blue);font-family:"Lucida Console",Monaco,monospace;text-shadow:0 0 6px rgba(70,140,255,.7);box-shadow:0 3px 10px rgba(0,0,0,.5);}
 .toast.error{border-color:#a03030;color:#ff9090;text-shadow:0 0 6px rgba(255,80,80,.7);}
-button{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation;}
-input[type="range"]{touch-action:manipulation;}
-@supports(padding:max(0px)){
-body{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom));}
-}
-@media (max-width:720px){
-.mobile-tabs{display:flex;gap:4px;padding:6px 8px;background:linear-gradient(#e2e2e2,#c9c9c9);border-top:1px solid #8a8a8a;}
-.mtab{padding:11px 4px;font-size:12px;}
-.pl-toggle-arrow{display:none;}
-#main-viz-panel{display:none !important;}
-body.page-editor #page-player{display:none;}
-body.page-editor .slots-area{display:none;}
-body.page-slots #page-player{display:none;}
-body.page-slots .playlist-header,
-body.page-slots .playlist-panel{display:none;}
-body:not(.page-editor):not(.page-slots) #page-editor{display:none;}
-body{padding:6px;gap:4px;}
-.tools-group button{padding:9px 11px;font-size:12px;}
-.transport-bar button{width:44px;height:44px;font-size:16px;}
-.track-info{order:5;flex-basis:100%;}
-.main-viz-canvas-wrap{height:90px;}
-.content-area{flex-direction:column;overflow-y:auto;}
-.playlist-panel{width:100%;min-width:0;border-right:none;}
-.slots-area{max-height:42vh;}
-input[type="range"]{height:14px;}
-input[type="range"]::-webkit-slider-thumb{width:18px;height:28px;}
-#remote-overlay{left:8px;right:8px;width:auto;bottom:8px;}
-.remote-btn{height:44px;font-size:16px;}
-}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-/* =====================================================================
-МОБИЛЬНАЯ ПЕРЕРАБОТКА (≤720px): ВЕРТИКАЛЬНЫЕ СТРАНИЦЫ
-===================================================================== */
-#mobile-rail{display:none;}
-.mtabs{display:none;}
-@media (max-width:720px){
-body{flex-direction:row;padding:4px;gap:4px;
-padding-top:calc(env(safe-area-inset-top,0px) + 40px);}
-.wa-window{flex:1;min-width:0;}
-.tools-group{display:none;}
-.track-info{display:none;}
-.wa-titlebar{display:none;}
-#mobile-rail{display:flex;flex-direction:column;gap:5px;padding:5px 3px;overflow-y:auto;flex-shrink:0;
-background:linear-gradient(#e2e2e2,#c9c9c9);border:1px solid #8a8a8a;border-radius:6px;box-shadow:inset 0 1px 0 #fff;}
-#mobile-rail button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;font-size:8px;min-width:48px;border-radius:5px;line-height:1;}
-#mobile-rail button .r-ic{font-size:18px;}
-#mobile-rail button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;text-shadow:0 1px 1px rgba(0,0,40,.5);}
-#modal-radio.open .modal-window,#modal-worldradio.open .modal-window,#modal-somafm.open .modal-window,
-#modal-favorites.open .modal-window,#modal-playlists.open .modal-window,#modal-rooms.open .modal-window,
-#modal-matrix.open .modal-window,#modal-slots.open .modal-window,#modal-app.open .modal-window,
-#modal-mixer.open .modal-window,#modal-youtube.open .modal-window{
-width:100vw;height:100%;max-width:none;max-height:none;border-radius:0;}
-.modal-header{padding-top:calc(env(safe-area-inset-top, 0px) + 14px);}
-.modal-back{display:inline-flex;align-items:center;justify-content:center;width:46px;height:34px;padding:0;font-size:14px;margin-right:6px;flex-shrink:0;}
-.modal-header .modal-close{width:46px;height:34px;font-size:14px;flex-shrink:0;}
-.mtabs{display:flex;gap:4px;margin-bottom:8px;overflow-x:auto;padding-bottom:2px;}
-.mtabs button{flex:0 0 auto;font-size:11px;padding:8px 14px;}
-.mtabs button.active{background:linear-gradient(var(--sel1),var(--sel2));color:#fff;}
-.m-scope .mtab-page{display:none;}
-.m-scope .mtab-page.active{display:block;}
-#modal-radio .radio-search{position:sticky;top:0;z-index:6;margin-bottom:0;}
-#modal-radio .radio-categories{position:sticky;top:32px;z-index:5;flex-wrap:nowrap;overflow-x:auto;padding:6px 0;margin-bottom:8px;background:linear-gradient(#d2d2d2,#c0c0c0);}
-#modal-radio .radio-categories button{flex:0 0 auto;}
-.stations-grid{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));}
-.matrix-wrapper{justify-content:flex-start;align-items:flex-start;overflow:auto;gap:8px;}
-.matrix-grid{width:100%;gap:2px;padding:4px;
-grid-template-columns:24px repeat(19,1fr);grid-template-rows:18px repeat(20,24px);flex-shrink:0;}
-.matrix-label{font-size:8px;}
-.matrix-presets{gap:4px;}
-.matrix-presets button{font-size:10px;padding:4px 7px;}
-.output-info{max-width:none;font-size:9px;}
-.mixer-channels{gap:4px;padding:6px 4px;}
-.mixer-channel{min-width:56px;max-width:64px;padding:6px 4px;}
-.status-bar{order:5;}
-body.page-player:not(.page-editor):not(.page-slots) #page-editor{display:contents;}
-body.page-player .playlist-header{display:none;}
-body.page-player .playlist-panel{display:none;}
-body.page-player .content-area{order:6;flex:1;min-height:0;overflow:hidden;margin-bottom:8px;}
-body.page-player .slots-area{flex:1;max-height:none;min-height:0;}
-#remote-overlay{left:64px;right:4px;width:auto;bottom:60px;max-height:calc(100vh - 150px);}
-}
 </style>
 </head>
 <body>
@@ -374,20 +286,6 @@ body.page-player .slots-area{flex:1;max-height:none;min-height:0;}
 <button id="btn-start-audio">▶ Запустить плеер Mix Player v.1</button>
 </div>
 <div id="toast-container"></div>
-<nav id="mobile-rail" aria-label="Разделы">
-<button data-modal="radio"><span class="r-ic">📻</span>Радио</button>
-<button data-modal="worldradio"><span class="r-ic">🌍</span>Мир</button>
-<button data-modal="somafm"><span class="r-ic">🌌</span>SomaFM</button>
-<button data-modal="favorites"><span class="r-ic">⭐</span>Favs</button>
-<button data-modal="playlists"><span class="r-ic">🎼</span>Треки</button>
-<button data-modal="slots"><span class="r-ic">🎛</span>Слоты</button>
-<button data-modal="rooms"><span class="r-ic">🏠</span>Комнаты</button>
-<button data-modal="matrix"><span class="r-ic">🔀</span>Матрица</button>
-<button data-modal="mixer"><span class="r-ic">🎚️</span>Микшер</button>
-<button id="rail-remote"><span class="r-ic">📱</span>Пульт</button>
-<button data-modal="youtube"><span class="r-ic">▶</span>YouTube</button>
-<button data-modal="app"><span class="r-ic">⬇</span>Прилож.</button>
-</nav>
 <div class="wa-window">
 <div class="wa-titlebar">
 <span class="wa-grip">≡</span>
@@ -484,10 +382,6 @@ body.page-player .slots-area{flex:1;max-height:none;min-height:0;}
 <span id="status-audio">Аудио: ожидание</span>
 </div>
 </main>
-<nav class="mobile-tabs">
-<button class="mtab active" data-page="player">🎧 Плеер</button>
-<button class="mtab" data-page="editor">🎼 Треки</button>
-</nav>
 </div>
 <!-- МОДАЛКИ -->
 <div class="modal-overlay" id="modal-radio">
@@ -3432,12 +3326,6 @@ if(a&&isFinite(a.duration)&&d.seekTime!=null)a.currentTime=d.seekTime;
 });
 }catch(e){}
 }
-function setPage(page){
-document.body.classList.toggle('page-editor',page==='editor');
-document.body.classList.toggle('page-slots',page==='slots');
-$$('.mtab').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
-}
-$$('.mtab').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
 function setPlaylistEditorCollapsed(collapsed){
 const area=$('#content-area');
 if(!area)return;
@@ -3446,7 +3334,6 @@ const arrow=$('#pl-toggle-arrow');
 if(arrow)arrow.textContent=collapsed?'▶':'▼';
 }
 $('#playlist-editor-header').addEventListener('click',(e)=>{
-if(window.innerWidth<=720)return;
 if(e.target.closest('.playlist-header-controls'))return;
 const area=$('#content-area');
 setPlaylistEditorCollapsed(!area.classList.contains('collapsed'));
@@ -3706,15 +3593,10 @@ updateRemoteUI();
 const syncRail=()=>{
 let openName=null;
 $$('.modal-overlay.open').forEach(m=>{openName=m.id.replace('modal-','');});
-$$('#mobile-rail [data-modal]').forEach(b=>b.classList.toggle('active',b.dataset.modal===openName));
-const rb=$('#rail-remote');
-if(rb)rb.classList.toggle('active',$('#remote-overlay').classList.contains('active'));
 };
 const railObserver=new MutationObserver(syncRail);
 $$('.modal-overlay').forEach(m=>railObserver.observe(m,{attributes:true,attributeFilter:['class']}));
 })();
-const railRemote=$('#rail-remote');
-if(railRemote)railRemote.onclick=()=>toggleRemoteMode();
 /* === Страница «Приложение» === */
 const appInstallBtn=$('#app-install-btn');
 if(appInstallBtn)appInstallBtn.onclick=async()=>{
